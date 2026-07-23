@@ -360,31 +360,6 @@
   .icon-opt.sel{border-color:var(--brass);background:var(--ink-bg-raised2);}
   .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:26px;}
 
-  /* Topbar / Auth */
-  .topbar{
-    display:flex;align-items:center;justify-content:flex-end;gap:14px;
-    max-width:820px;margin:0 auto;padding:16px 28px 0;
-  }
-  .topbar-user{
-    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-text-dim);
-  }
-  .login-shell{
-    min-height:100vh;display:flex;align-items:center;justify-content:center;
-  }
-  .login-card{
-    background:var(--ink-bg-raised);
-    border:1px solid var(--hairline);
-    border-radius:8px;
-    padding:36px 32px;
-    width:100%;max-width:360px;
-    box-shadow:0 20px 60px rgba(0,0,0,.5);
-  }
-  .login-card h1{font-size:26px;margin-bottom:6px;}
-  .login-card .sub{margin-bottom:26px;}
-  .login-error{
-    color:var(--danger);font-size:13px;margin:-6px 0 16px;min-height:16px;
-  }
-
   @media (max-width:600px){
     .wrap{padding:36px 18px 80px;}
     h1{font-size:30px;}
@@ -395,19 +370,10 @@
 </style>
 </head>
 <body>
-<div class="topbar" id="topbar" style="display:none;">
-  <span class="topbar-user" id="topbarUser"></span>
-  <button class="btn ghost small" id="logoutBtn">Abmelden</button>
-</div>
-<div class="wrap" id="loginWrap" style="display:none;"></div>
-<div class="wrap" id="app" style="display:none;"></div>
+<div class="wrap" id="app"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-  import {
-    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut,
-    setPersistence, indexedDBLocalPersistence, browserLocalPersistence
-  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import {
     getFirestore, collection, addDoc, onSnapshot,
     doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs,
@@ -460,10 +426,8 @@
   }
   function describeError(err){
     const code = (err && err.code ? String(err.code) : '').replace(/^firestore\//,'');
-    if(code==='permission-denied')
-      return 'Zugriff verweigert (permission-denied) – die Firestore-Regeln blockieren den Zugriff.';
-    if(code==='unauthenticated')
-      return 'Nicht angemeldet (unauthenticated) – bitte neu einloggen.';
+    if(code==='permission-denied' || code==='unauthenticated')
+      return 'Zugriff verweigert ('+code+') – die Firestore-Regeln müssen auf "allow read, write: if true" stehen.';
     if(code==='unavailable')
       return 'Datenbank nicht erreichbar (unavailable) – Internetverbindung prüfen.';
     if(code==='failed-precondition')
@@ -486,13 +450,6 @@
 
   const fb = initializeApp(firebaseConfig);
   const db = getFirestore(fb);
-  const auth = getAuth(fb);
-
-  // Login pro Gerät dauerhaft merken (nur nach "Abmelden" wird erneut gefragt).
-  // Zuerst IndexedDB (robust, auch als Homebildschirm-App), sonst localStorage.
-  const persistenceReady = setPersistence(auth, indexedDBLocalPersistence)
-    .catch(() => setPersistence(auth, browserLocalPersistence))
-    .catch((err) => console.error('Persistenz konnte nicht gesetzt werden:', err));
 
   const projectsRef = collection(db,'projects');
   const ideasRef    = collection(db,'appIdeas');
@@ -534,7 +491,6 @@
   function cleanup(){ unsubs.forEach(fn=>{ try{fn();}catch(e){} }); unsubs=[]; }
 
   function router(){
-    if(!auth.currentUser) return;
     cleanup();
     const hash = location.hash || '#/';
     const m = hash.match(/^#\/project\/(.+)$/);
@@ -927,74 +883,9 @@
   }
 
   // ══════════════════════════════════════════════════════════
-  //  LOGIN-GATE
+  //  START · ohne Login direkt in die App
   // ══════════════════════════════════════════════════════════
-  const topbar = document.getElementById('topbar');
-  const topbarUser = document.getElementById('topbarUser');
-  const loginWrap = document.getElementById('loginWrap');
-  const logoutBtn = document.getElementById('logoutBtn');
-
-  logoutBtn.addEventListener('click', ()=>{ signOut(auth); });
-
-  function renderLogin(errorMsg){
-    loginWrap.innerHTML='';
-    loginWrap.style.display='';
-    loginWrap.appendChild(el('div',{class:'login-shell'},[
-      el('div',{class:'login-card'},(()=>{
-        const emailInput = el('input',{type:'text',placeholder:'E-Mail',autocomplete:'username'});
-        const pwInput = el('input',{type:'password',placeholder:'Passwort',autocomplete:'current-password'});
-        const errorP = el('p',{class:'login-error',text:errorMsg||''});
-        const submitBtn = el('button',{class:'btn',type:'submit',text:'Anmelden',style:'width:100%;'});
-        const form = el('form',{},[
-          el('div',{class:'field'},[emailInput]),
-          el('div',{class:'field'},[pwInput]),
-          errorP,
-          submitBtn
-        ]);
-        form.addEventListener('submit',async(e)=>{
-          e.preventDefault();
-          submitBtn.disabled = true;
-          errorP.textContent='';
-          try{
-            await persistenceReady;
-            await signInWithEmailAndPassword(auth, emailInput.value.trim(), pwInput.value);
-          }catch(err){
-            console.error(err);
-            errorP.textContent='E-Mail oder Passwort falsch.';
-            submitBtn.disabled=false;
-          }
-        });
-        return [
-          el('p',{class:'eyebrow',text:'Geschützter Zugang'}),
-          el('h1',{text:'Anmelden'}),
-          el('p',{class:'sub',text:'Bitte melde dich an, um dein Verbesserungsprotokoll zu sehen.'}),
-          form
-        ];
-      })())
-    ]));
-    emailFocus(loginWrap);
-  }
-  function emailFocus(container){
-    const first = container.querySelector('input[type=text]');
-    if(first) first.focus();
-  }
-
-  onAuthStateChanged(auth, (user)=>{
-    if(user){
-      loginWrap.style.display='none';
-      loginWrap.innerHTML='';
-      topbar.style.display='flex';
-      topbarUser.textContent = user.email || '';
-      app.style.display='';
-      router();
-    } else {
-      cleanup();
-      topbar.style.display='none';
-      app.style.display='none';
-      app.innerHTML='';
-      renderLogin();
-    }
-  });
+  router();
 </script>
 </body>
 </html>
