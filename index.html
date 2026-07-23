@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verbesserungsprotokoll · Projekte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink-bg:#1b1d21;
+    --ink-bg-raised:#212327;
+    --ink-bg-raised2:#262a2f;
+    --paper-text:#e4e2dc;
+    --paper-text-dim:#9a978f;
+    --hairline:#34363b;
+    --brass:#c08552;
+    --brass-dim:#8a5f39;
+    --sage:#7a9b76;
+    --sage-dim:#4f6a4c;
+    --danger:#a5645a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink-bg);
+    color:var(--paper-text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:820px;
+    margin:0 auto;
+    padding:56px 28px 100px;
+  }
+  header.app-head{
+    margin-bottom:40px;
+    border-bottom:1px solid var(--hairline);
+    padding-bottom:28px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--brass);
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:40px;
+    letter-spacing:-0.01em;
+    margin:0 0 8px;
+    color:var(--paper-text);
+  }
+  .sub{
+    color:var(--paper-text-dim);
+    font-size:14.5px;
+    margin:0;
+  }
+  .status-dot{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--sage);
+    margin-right:7px;
+    position:relative;
+    top:-1px;
+  }
+  .status-dot.offline{background:var(--danger);}
+
+  /* Back link */
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:none;
+    border:none;
+    color:var(--paper-text-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+    padding:0;
+    margin-bottom:22px;
+    transition:color .15s ease;
+  }
+  .back-link:hover{color:var(--brass);}
+
+  /* Buttons */
+  input[type=text],textarea{
+    background:var(--ink-bg-raised);
+    border:1px solid var(--hairline);
+    color:var(--paper-text);
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    padding:14px 16px;
+    border-radius:3px;
+    outline:none;
+    transition:border-color .15s ease;
+    width:100%;
+  }
+  textarea{resize:vertical;line-height:1.5;min-height:52px;}
+  input[type=text]::placeholder,textarea::placeholder{color:var(--paper-text-dim);}
+  input[type=text]:focus,textarea:focus{border-color:var(--brass-dim);}
+
+  button.btn{
+    background:var(--brass);
+    color:#1b1d21;
+    border:none;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:0 22px;
+    height:48px;
+    border-radius:3px;
+    cursor:pointer;
+    transition:background .15s ease;
+    white-space:nowrap;
+  }
+  button.btn:hover{background:#d09865;}
+  button.btn:disabled{opacity:.5;cursor:default;}
+  button.btn.ghost{
+    background:transparent;
+    color:var(--paper-text-dim);
+    border:1px solid var(--hairline);
+  }
+  button.btn.ghost:hover{background:var(--ink-bg-raised);color:var(--paper-text);}
+  button.btn.small{height:40px;font-size:13px;padding:0 16px;}
+
+  form.add-row{display:flex;gap:10px;margin-bottom:14px;align-items:flex-start;}
+  form.add-row textarea{flex:1;min-height:52px;}
+
+  /* Home: project grid */
+  .section-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--paper-text-dim);
+    margin:0 0 16px;
+  }
+  .home-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:14px;
+    margin-bottom:48px;
+  }
+  .project-card{
+    background:var(--ink-bg-raised);
+    border:1px solid var(--hairline);
+    border-left:3px solid var(--brass);
+    border-radius:5px;
+    padding:18px 18px 14px;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .1s ease, background .15s ease;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    min-height:120px;
+  }
+  .project-card:hover{background:var(--ink-bg-raised2);transform:translateY(-1px);}
+  .card-icon{font-size:28px;line-height:1;margin-bottom:12px;}
+  .card-name{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    font-weight:500;
+    margin:0;
+    word-break:break-word;
+  }
+  .card-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--paper-text-dim);
+    margin-top:6px;
+  }
+  .card-controls{
+    display:flex;
+    gap:2px;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid var(--hairline);
+    opacity:.55;
+    transition:opacity .15s ease;
+  }
+  .project-card:hover .card-controls{opacity:1;}
+  .ctrl-btn{
+    background:none;
+    border:none;
+    color:var(--paper-text-dim);
+    cursor:pointer;
+    font-size:14px;
+    padding:4px 7px;
+    border-radius:3px;
+    transition:color .12s ease, background .12s ease;
+    line-height:1;
+  }
+  .ctrl-btn:hover{color:var(--paper-text);background:var(--ink-bg);}
+  .ctrl-btn.danger:hover{color:var(--danger);}
+  .ctrl-spacer{flex:1;}
+
+  /* Entries */
+  section.category{margin-bottom:44px;}
+  .cat-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:4px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--hairline);
+  }
+  .cat-title{font-family:'Fraunces',serif;font-size:19px;font-weight:500;margin:0;}
+  .cat-title.done{color:var(--paper-text-dim);}
+  .cat-count{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-text-dim);}
+
+  ul.entries{list-style:none;margin:0;padding:0;}
+  li.entry{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    padding:16px 0;
+    border-bottom:1px solid var(--hairline);
+  }
+  li.entry:last-child{border-bottom:none;}
+  .idx{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--brass-dim);
+    padding-top:3px;
+    min-width:28px;
+  }
+  .checkbox{
+    flex-shrink:0;
+    width:19px;height:19px;
+    border:1.5px solid var(--paper-text-dim);
+    border-radius:3px;
+    cursor:pointer;
+    margin-top:2px;
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color .15s ease, background .15s ease;
+    background:transparent;
+  }
+  .checkbox:hover{border-color:var(--brass);}
+  .checkbox.checked{background:var(--sage-dim);border-color:var(--sage);}
+  .checkbox svg{width:12px;height:12px;opacity:0;transition:opacity .1s ease;}
+  .checkbox.checked svg{opacity:1;}
+
+  .entry-body{flex:1;min-width:0;}
+  .entry-text{font-size:15px;line-height:1.5;word-break:break-word;white-space:pre-wrap;}
+  .entry-text.done{color:var(--paper-text-dim);text-decoration:line-through;text-decoration-color:var(--hairline);}
+  .entry-note{
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--paper-text-dim);
+    margin-top:7px;
+    padding-left:12px;
+    border-left:2px solid var(--hairline);
+    white-space:pre-wrap;
+    word-break:break-word;
+  }
+  .meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--paper-text-dim);
+    margin-top:8px;
+  }
+  .entry-actions{display:flex;gap:2px;flex-shrink:0;}
+  .row-btn{
+    background:none;border:none;color:var(--paper-text-dim);
+    cursor:pointer;font-size:14px;padding:2px 6px;border-radius:3px;
+    opacity:0;transition:opacity .12s ease, color .12s ease, background .12s ease;
+  }
+  li.entry:hover .row-btn{opacity:.85;}
+  .row-btn:hover{color:var(--paper-text);background:var(--ink-bg-raised);opacity:1;}
+  .row-btn.del:hover{color:var(--danger);}
+
+  .edit-box{flex:1;min-width:0;}
+  .edit-box textarea{margin-bottom:8px;}
+  .edit-actions{display:flex;gap:8px;}
+
+  .empty{color:var(--paper-text-dim);font-size:14px;font-style:italic;padding:18px 0;}
+
+  /* Ideas */
+  .idea-item{
+    background:var(--ink-bg-raised);
+    border:1px solid var(--hairline);
+    border-radius:5px;
+    padding:16px 18px;
+    margin-bottom:12px;
+  }
+  .idea-text{font-size:15px;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+  .idea-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:12px;padding-top:10px;border-top:1px solid var(--hairline);
+  }
+  .idea-foot .meta{margin:0;}
+  .idea-actions{display:flex;gap:4px;}
+
+  footer{
+    margin-top:60px;padding-top:20px;border-top:1px solid var(--hairline);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-text-dim);text-align:center;
+  }
+
+  .setup-banner{
+    background:var(--ink-bg-raised);
+    border:1px solid var(--brass-dim);
+    border-radius:4px;
+    padding:20px 22px;margin-bottom:36px;
+    font-size:13.5px;line-height:1.6;color:var(--paper-text-dim);
+  }
+  .setup-banner strong{color:var(--paper-text);}
+  .setup-banner code{
+    background:var(--ink-bg);padding:1px 6px;border-radius:3px;
+    font-family:'IBM Plex Mono',monospace;color:var(--brass);
+  }
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(10,11,13,.72);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:60px 20px;z-index:50;overflow-y:auto;
+  }
+  .modal{
+    background:var(--ink-bg-raised);
+    border:1px solid var(--hairline);
+    border-radius:8px;
+    padding:28px;width:100%;max-width:440px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5);
+  }
+  .modal h2{font-family:'Fraunces',serif;font-weight:500;font-size:24px;margin:0 0 22px;}
+  .field{margin-bottom:20px;}
+  .field label{
+    display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--paper-text-dim);margin-bottom:9px;
+  }
+  .swatch-grid{display:flex;flex-wrap:wrap;gap:9px;}
+  .swatch{
+    width:30px;height:30px;border-radius:50%;cursor:pointer;
+    border:2px solid transparent;transition:transform .1s ease;
+  }
+  .swatch:hover{transform:scale(1.1);}
+  .swatch.sel{border-color:var(--paper-text);}
+  .icon-grid{display:flex;flex-wrap:wrap;gap:7px;}
+  .icon-opt{
+    width:38px;height:38px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;background:var(--ink-bg);border:1px solid var(--hairline);
+    border-radius:5px;cursor:pointer;transition:border-color .12s ease, background .12s ease;
+  }
+  .icon-opt:hover{background:var(--ink-bg-raised2);}
+  .icon-opt.sel{border-color:var(--brass);background:var(--ink-bg-raised2);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:26px;}
+
+  @media (max-width:600px){
+    .wrap{padding:36px 18px 80px;}
+    h1{font-size:30px;}
+    .home-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:11px;}
+    form.add-row{flex-direction:column;}
+    form.add-row .btn{width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, onSnapshot,
+    doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs,
+    serverTimestamp, query, orderBy, writeBatch
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ─────────────────────────────────────────────────────────
+  // FIREBASE-KONFIGURATION (unverändert übernommen)
+  // ─────────────────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyBIq5Hq459a4RjJNgwVB0tyfP6I3_xW3tc",
+    authDomain: "verbesserungsprotokoll.firebaseapp.com",
+    projectId: "verbesserungsprotokoll",
+    storageBucket: "verbesserungsprotokoll.firebasestorage.app",
+    messagingSenderId: "739113569685",
+    appId: "1:739113569685:web:8e16278286d6f4f7cafa9c"
+  };
+  // ─────────────────────────────────────────────────────────
+
+  const LEGACY_COLLECTION = "verbesserungsprotokoll"; // bestehende Einträge
+  const LEGACY_PROJECT_ID = "legacy-verbesserungsprotokoll";
+
+  const COLORS = ["#c08552","#7a9b76","#a5645a","#5a7a9b","#8a6d9b","#5a9b8f","#b89b52","#b57a8a","#7f8a99"];
+  const ICONS  = ["📋","📱","💡","💰","💪","🌐","🤖","📊","🎯","🧭","🎨","🔧","📚","⚙️","🩺","🗂️","✨","🚀"];
+
+  const app = document.getElementById('app');
+  const checkIcon = `<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.5 8.5L6 12L13.5 4" stroke="#1b1d21" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  // ── kleine DOM-Helfer ──────────────────────────────────────
+  function el(tag, props={}, children=[]){
+    const n = document.createElement(tag);
+    for(const [k,v] of Object.entries(props)){
+      if(k==='class') n.className=v;
+      else if(k==='text') n.textContent=v;
+      else if(k==='html') n.innerHTML=v;
+      else if(k.startsWith('on') && typeof v==='function') n.addEventListener(k.slice(2).toLowerCase(),v);
+      else if(v!==undefined && v!==null) n.setAttribute(k,v);
+    }
+    (Array.isArray(children)?children:[children]).forEach(c=>{
+      if(c==null) return;
+      n.appendChild(typeof c==='string'?document.createTextNode(c):c);
+    });
+    return n;
+  }
+  function fmtDate(ts){
+    if(!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' · ' +
+           d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  // ── Konfiguration prüfen ───────────────────────────────────
+  const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== "DEIN_API_KEY";
+  if(!isConfigured){
+    app.appendChild(el('header',{class:'app-head'},[
+      el('p',{class:'eyebrow',text:'Geteiltes Protokoll'}),
+      el('h1',{text:'Verbesserungsprotokoll'}),
+      el('p',{class:'sub',html:'<span class="status-dot offline"></span>Nicht konfiguriert'})
+    ]));
+    app.appendChild(el('div',{class:'setup-banner',html:
+      '<strong>Einrichtung nötig:</strong> Bevor die App funktioniert, muss im Code (Abschnitt <code>firebaseConfig</code>) ein eigenes Firebase-Projekt eingetragen werden.'}));
+    throw new Error('not configured');
+  }
+
+  const fb = initializeApp(firebaseConfig);
+  const db = getFirestore(fb);
+
+  const projectsRef = collection(db,'projects');
+  const ideasRef    = collection(db,'appIdeas');
+
+  function entriesRefFor(project){
+    return project.legacyCollection
+      ? collection(db, project.legacyCollection)
+      : collection(db,'projects',project.id,'entries');
+  }
+  function entryDocFor(project,id){
+    return project.legacyCollection
+      ? doc(db, project.legacyCollection, id)
+      : doc(db,'projects',project.id,'entries',id);
+  }
+
+  // ── Bestehendes Protokoll als Standard-Projekt sichern ─────
+  async function ensureLegacyProject(){
+    try{
+      const ref = doc(db,'projects',LEGACY_PROJECT_ID);
+      const snap = await getDoc(ref);
+      if(!snap.exists()){
+        await setDoc(ref,{
+          name:'Verbesserungsprotokoll',
+          color:'#c08552',
+          icon:'📋',
+          legacyCollection:LEGACY_COLLECTION,
+          order:0,
+          createdAt:serverTimestamp()
+        });
+      }
+    }catch(err){ console.error('Legacy-Projekt konnte nicht angelegt werden:',err); }
+  }
+
+  // ── Router ────────────────────────────────────────────────
+  let unsubs = [];
+  let projectsCache = [];
+
+  function track(fn){ if(fn) unsubs.push(fn); }
+  function cleanup(){ unsubs.forEach(fn=>{ try{fn();}catch(e){} }); unsubs=[]; }
+
+  function router(){
+    cleanup();
+    const hash = location.hash || '#/';
+    const m = hash.match(/^#\/project\/(.+)$/);
+    if(m){ renderProject(decodeURIComponent(m[1])); }
+    else { renderHome(); }
+    window.scrollTo(0,0);
+  }
+  window.addEventListener('hashchange', router);
+
+  // ══════════════════════════════════════════════════════════
+  //  ANSICHT 1 · PROJEKTÜBERSICHT (Startseite)
+  // ══════════════════════════════════════════════════════════
+  function renderHome(){
+    app.innerHTML='';
+
+    const statusDot = el('span',{class:'status-dot'});
+    const statusText = el('span',{text:'Verbindung wird hergestellt …'});
+    app.appendChild(el('header',{class:'app-head'},[
+      el('p',{class:'eyebrow',text:'Deine Projekte'}),
+      el('h1',{text:'Projektübersicht'}),
+      el('p',{class:'sub'},[statusDot,statusText])
+    ]));
+
+    // Formular: neues Projekt
+    const grid = el('div',{class:'home-grid'});
+    app.appendChild(el('p',{class:'section-label',text:'Projekte'}));
+    app.appendChild(el('div',{style:'margin-bottom:20px;'},[
+      el('button',{class:'btn',text:'+ Neues Projekt', onclick:()=>openProjectModal(null)})
+    ]));
+    app.appendChild(grid);
+
+    // App-Ideen Bereich
+    const ideasWrap = el('div');
+    app.appendChild(el('div',{style:'border-top:1px solid var(--hairline);padding-top:34px;margin-top:8px;'},[
+      el('p',{class:'section-label',text:'💡 App-Ideen'}),
+      buildIdeaForm(),
+      ideasWrap
+    ]));
+    subscribeIdeas(ideasWrap);
+
+    app.appendChild(el('footer',{text:'Alle Änderungen werden automatisch über die Datenbank synchronisiert und dauerhaft gespeichert.'}));
+
+    // Live-Projekte laden
+    ensureLegacyProject();
+    const q = query(projectsRef, orderBy('order','asc'));
+    track(onSnapshot(q,(snap)=>{
+      projectsCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      grid.innerHTML='';
+      if(projectsCache.length===0){
+        grid.appendChild(el('p',{class:'empty',text:'Noch keine Projekte – lege oben dein erstes an.'}));
+      }
+      projectsCache.forEach((p,i)=> grid.appendChild(buildProjectCard(p,i,projectsCache.length)));
+      statusDot.classList.remove('offline');
+      statusText.textContent='Verbunden · Live-Synchronisierung aktiv';
+    },(err)=>{
+      console.error(err);
+      statusDot.classList.add('offline');
+      statusText.textContent='Verbindungsfehler – Konfiguration prüfen';
+    }));
+  }
+
+  function buildProjectCard(p,index,total){
+    const card = el('div',{class:'project-card'});
+    card.style.borderLeftColor = p.color || '#c08552';
+    card.addEventListener('click',(e)=>{
+      if(e.target.closest('.card-controls')) return;
+      location.hash = '#/project/'+encodeURIComponent(p.id);
+    });
+
+    card.appendChild(el('div',{class:'card-icon',text:p.icon||'📁'}));
+    card.appendChild(el('p',{class:'card-name',text:p.name||'Ohne Namen'}));
+
+    const controls = el('div',{class:'card-controls'});
+    controls.appendChild(el('button',{class:'ctrl-btn',title:'Nach oben',text:'▲',
+      onclick:()=>moveProject(index,-1)}));
+    controls.appendChild(el('button',{class:'ctrl-btn',title:'Nach unten',text:'▼',
+      onclick:()=>moveProject(index,1)}));
+    controls.appendChild(el('span',{class:'ctrl-spacer'}));
+    controls.appendChild(el('button',{class:'ctrl-btn',title:'Bearbeiten / Umbenennen',text:'✎',
+      onclick:()=>openProjectModal(p)}));
+    controls.appendChild(el('button',{class:'ctrl-btn danger',title:'Löschen',text:'🗑',
+      onclick:()=>deleteProject(p)}));
+    card.appendChild(controls);
+    return card;
+  }
+
+  async function moveProject(index,dir){
+    const target = index+dir;
+    if(target<0 || target>=projectsCache.length) return;
+    const a = projectsCache[index], b = projectsCache[target];
+    const oa = (a.order ?? index), ob = (b.order ?? target);
+    try{
+      const batch = writeBatch(db);
+      batch.update(doc(db,'projects',a.id),{order:ob});
+      batch.update(doc(db,'projects',b.id),{order:oa});
+      await batch.commit();
+    }catch(err){ console.error(err); alert('Reihenfolge konnte nicht geändert werden.'); }
+  }
+
+  async function deleteProject(p){
+    if(p.legacyCollection){
+      if(!confirm('„'+p.name+'“ ist dein ursprüngliches Verbesserungsprotokoll mit allen bestehenden Einträgen.\n\nWirklich löschen? Die Einträge selbst bleiben in der Datenbank erhalten, das Projekt verschwindet aber aus der Übersicht.')) return;
+    } else {
+      if(!confirm('Projekt „'+p.name+'“ mit allen zugehörigen Einträgen unwiderruflich löschen?')) return;
+    }
+    try{
+      if(!p.legacyCollection){
+        const es = await getDocs(collection(db,'projects',p.id,'entries'));
+        const batch = writeBatch(db);
+        es.forEach(d=>batch.delete(d.ref));
+        await batch.commit();
+      }
+      await deleteDoc(doc(db,'projects',p.id));
+    }catch(err){ console.error(err); alert('Projekt konnte nicht gelöscht werden.'); }
+  }
+
+  // ── Projekt anlegen / bearbeiten (Modal) ──────────────────
+  function openProjectModal(existing){
+    const isEdit = !!existing;
+    let selColor = existing?.color || COLORS[0];
+    let selIcon  = existing?.icon  || ICONS[0];
+
+    const nameInput = el('input',{type:'text',placeholder:'z. B. Fitness-App',value:existing?.name||'',maxlength:'80'});
+
+    const swatchGrid = el('div',{class:'swatch-grid'});
+    COLORS.forEach(c=>{
+      const s = el('div',{class:'swatch'+(c===selColor?' sel':'')});
+      s.style.background=c;
+      s.addEventListener('click',()=>{ selColor=c; swatchGrid.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel')); s.classList.add('sel'); });
+      swatchGrid.appendChild(s);
+    });
+
+    const iconGrid = el('div',{class:'icon-grid'});
+    ICONS.forEach(ic=>{
+      const o = el('div',{class:'icon-opt'+(ic===selIcon?' sel':''),text:ic});
+      o.addEventListener('click',()=>{ selIcon=ic; iconGrid.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('sel')); o.classList.add('sel'); });
+      iconGrid.appendChild(o);
+    });
+
+    const overlay = el('div',{class:'modal-overlay'});
+    overlay.addEventListener('click',(e)=>{ if(e.target===overlay) overlay.remove(); });
+    const saveBtn = el('button',{class:'btn',text:isEdit?'Speichern':'Anlegen'});
+
+    const modal = el('div',{class:'modal'},[
+      el('h2',{text:isEdit?'Projekt bearbeiten':'Neues Projekt'}),
+      el('div',{class:'field'},[el('label',{text:'Name'}),nameInput]),
+      el('div',{class:'field'},[el('label',{text:'Farbe (optional)'}),swatchGrid]),
+      el('div',{class:'field'},[el('label',{text:'Icon (optional)'}),iconGrid]),
+      el('div',{class:'modal-actions'},[
+        el('button',{class:'btn ghost',text:'Abbrechen',onclick:()=>overlay.remove()}),
+        saveBtn
+      ])
+    ]);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    nameInput.focus();
+
+    async function save(){
+      const name = nameInput.value.trim();
+      if(!name){ nameInput.focus(); return; }
+      saveBtn.disabled=true;
+      try{
+        if(isEdit){
+          await updateDoc(doc(db,'projects',existing.id),{name,color:selColor,icon:selIcon});
+        }else{
+          const maxOrder = projectsCache.reduce((m,p)=>Math.max(m,p.order??0),0);
+          await addDoc(projectsRef,{name,color:selColor,icon:selIcon,order:maxOrder+1,createdAt:serverTimestamp()});
+        }
+        overlay.remove();
+      }catch(err){ console.error(err); alert('Projekt konnte nicht gespeichert werden.'); saveBtn.disabled=false; }
+    }
+    saveBtn.addEventListener('click',save);
+    nameInput.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); save(); }});
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  APP-IDEEN
+  // ══════════════════════════════════════════════════════════
+  function buildIdeaForm(){
+    const ta = el('textarea',{placeholder:'Neue App-Idee festhalten … (beliebig lang)',rows:'3',maxlength:'8000'});
+    const btn = el('button',{class:'btn',text:'Idee speichern'});
+    const form = el('form',{class:'add-row'},[ta,btn]);
+    form.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const val = ta.value.trim();
+      if(!val) return;
+      btn.disabled=true;
+      try{
+        await addDoc(ideasRef,{text:val,createdAt:serverTimestamp()});
+        ta.value='';
+      }catch(err){ console.error(err); alert('Idee konnte nicht gespeichert werden.'); }
+      btn.disabled=false; ta.focus();
+    });
+    return form;
+  }
+
+  function subscribeIdeas(container){
+    const q = query(ideasRef, orderBy('createdAt','desc'));
+    track(onSnapshot(q,(snap)=>{
+      container.innerHTML='';
+      if(snap.empty){
+        container.appendChild(el('p',{class:'empty',text:'Noch keine Ideen – schreib deine erste oben hinein.'}));
+        return;
+      }
+      snap.docs.forEach(d=> container.appendChild(buildIdeaItem(d.id,d.data())));
+    },(err)=>console.error(err)));
+  }
+
+  function buildIdeaItem(id,data){
+    const item = el('div',{class:'idea-item'});
+    const textDiv = el('div',{class:'idea-text',text:data.text});
+
+    const foot = el('div',{class:'idea-foot'});
+    foot.appendChild(el('div',{class:'meta',text:(data.updatedAt?'bearb. ':'')+fmtDate(data.updatedAt||data.createdAt)}));
+    const actions = el('div',{class:'idea-actions'});
+    const editBtn = el('button',{class:'row-btn',title:'Bearbeiten',text:'✎',style:'opacity:.85;'});
+    const delBtn  = el('button',{class:'row-btn del',title:'Löschen',text:'✕',style:'opacity:.85;'});
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+    foot.appendChild(actions);
+
+    delBtn.addEventListener('click',async()=>{
+      if(!confirm('Diese App-Idee löschen?')) return;
+      try{ await deleteDoc(doc(db,'appIdeas',id)); }catch(err){ console.error(err); alert('Konnte nicht gelöscht werden.'); }
+    });
+
+    editBtn.addEventListener('click',()=>{
+      const ta = el('textarea',{rows:'4',maxlength:'8000'});
+      ta.value = data.text;
+      const save = el('button',{class:'btn small',text:'Speichern'});
+      const cancel = el('button',{class:'btn small ghost',text:'Abbrechen'});
+      const box = el('div',{},[ta, el('div',{class:'edit-actions',style:'margin-top:8px;'},[save,cancel])]);
+      item.innerHTML=''; item.appendChild(box); ta.focus();
+      cancel.addEventListener('click',()=>{ item.innerHTML=''; item.appendChild(textDiv); item.appendChild(foot); });
+      save.addEventListener('click',async()=>{
+        const val = ta.value.trim(); if(!val) return;
+        save.disabled=true;
+        try{ await updateDoc(doc(db,'appIdeas',id),{text:val,updatedAt:serverTimestamp()}); }
+        catch(err){ console.error(err); alert('Konnte nicht gespeichert werden.'); save.disabled=false; }
+      });
+    });
+
+    item.appendChild(textDiv);
+    item.appendChild(foot);
+    return item;
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  ANSICHT 2 · VERBESSERUNGSPROTOKOLL (pro Projekt)
+  // ══════════════════════════════════════════════════════════
+  async function renderProject(projectId){
+    app.innerHTML='';
+    app.appendChild(el('button',{class:'back-link',html:'‹ Alle Projekte',onclick:()=>{ location.hash='#/'; }}));
+
+    // Projektdaten laden
+    let project;
+    try{
+      const snap = await getDoc(doc(db,'projects',projectId));
+      if(!snap.exists()){
+        app.appendChild(el('div',{class:'setup-banner',html:'<strong>Projekt nicht gefunden.</strong> Es wurde vermutlich gelöscht.'}));
+        return;
+      }
+      project = {id:snap.id, ...snap.data()};
+    }catch(err){
+      console.error(err);
+      app.appendChild(el('div',{class:'setup-banner',html:'<strong>Fehler beim Laden des Projekts.</strong>'}));
+      return;
+    }
+
+    const statusDot = el('span',{class:'status-dot'});
+    const statusText = el('span',{text:'Verbindung wird hergestellt …'});
+    app.appendChild(el('header',{class:'app-head'},[
+      el('p',{class:'eyebrow',text:(project.icon||'📁')+'  Projekt'}),
+      el('h1',{text:project.name}),
+      el('p',{class:'sub'},[statusDot,statusText])
+    ]));
+
+    // Eingabe: Verbesserung + optionale Notiz
+    const textInput = el('textarea',{placeholder:'Neuer Verbesserungsvorschlag …',rows:'2',maxlength:'4000'});
+    const noteInput = el('textarea',{placeholder:'Optionale Notiz / Details (kann später bearbeitet werden) …',rows:'2',maxlength:'4000',style:'margin-top:10px;'});
+    const addBtn = el('button',{class:'btn',text:'Eintragen'});
+    const addForm = el('form',{style:'margin-bottom:44px;'},[
+      el('div',{class:'add-row'},[textInput,addBtn]),
+      noteInput
+    ]);
+    app.appendChild(addForm);
+
+    const openSection = el('ul',{class:'entries'});
+    const openCount = el('p',{class:'cat-count',text:'0'});
+    app.appendChild(el('section',{class:'category'},[
+      el('div',{class:'cat-head'},[el('p',{class:'cat-title',text:'Offene Aufgaben'}),openCount]),
+      openSection
+    ]));
+
+    const doneSection = el('ul',{class:'entries'});
+    const doneCount = el('p',{class:'cat-count',text:'0'});
+    app.appendChild(el('section',{class:'category'},[
+      el('div',{class:'cat-head'},[el('p',{class:'cat-title done',text:'Erledigte Aufgaben'}),doneCount]),
+      doneSection
+    ]));
+
+    app.appendChild(el('footer',{text:'Änderungen werden automatisch für alle Geräte synchronisiert und dauerhaft gespeichert.'}));
+
+    addForm.addEventListener('submit',async(e)=>{
+      e.preventDefault();
+      const val = textInput.value.trim();
+      if(!val) return;
+      addBtn.disabled=true;
+      try{
+        await addDoc(entriesRefFor(project),{
+          text:val,
+          note:noteInput.value.trim(),
+          done:false,
+          createdAt:serverTimestamp()
+        });
+        textInput.value=''; noteInput.value='';
+      }catch(err){ console.error(err); alert('Eintrag konnte nicht gespeichert werden.'); }
+      addBtn.disabled=false; textInput.focus();
+    });
+
+    const q = query(entriesRefFor(project), orderBy('createdAt','asc'));
+    track(onSnapshot(q,(snapshot)=>{
+      openSection.innerHTML=''; doneSection.innerHTML='';
+      let openN=0, doneN=0;
+      snapshot.docs.forEach((d)=>{
+        const data = d.data();
+        if(data.done){ doneSection.appendChild(buildEntry(project,d.id,data,doneN)); doneN++; }
+        else { openSection.appendChild(buildEntry(project,d.id,data,openN)); openN++; }
+      });
+      openCount.textContent=openN; doneCount.textContent=doneN;
+      if(openN===0) openSection.appendChild(el('p',{class:'empty',text:'Keine offenen Aufgaben.'}));
+      if(doneN===0) doneSection.appendChild(el('p',{class:'empty',text:'Noch nichts erledigt.'}));
+      statusDot.classList.remove('offline');
+      statusText.textContent='Verbunden · Live-Synchronisierung aktiv';
+    },(err)=>{
+      console.error(err);
+      statusDot.classList.add('offline');
+      statusText.textContent='Verbindungsfehler – Konfiguration prüfen';
+    }));
+  }
+
+  function buildEntry(project,id,data,index){
+    const li = el('li',{class:'entry'});
+
+    const idx = el('span',{class:'idx',text:'§'+String(index+1).padStart(2,'0')});
+
+    const checkbox = el('div',{class:'checkbox'+(data.done?' checked':''),html:checkIcon});
+    checkbox.addEventListener('click',()=>updateDoc(entryDocFor(project,id),{done:!data.done}));
+
+    const body = el('div',{class:'entry-body'});
+    const text = el('div',{class:'entry-text'+(data.done?' done':''),text:data.text});
+    body.appendChild(text);
+    if(data.note && data.note.trim()){
+      body.appendChild(el('div',{class:'entry-note',text:data.note}));
+    }
+    body.appendChild(el('div',{class:'meta',text:(data.updatedAt?'bearb. ':'')+fmtDate(data.updatedAt||data.createdAt)}));
+
+    const actions = el('div',{class:'entry-actions'});
+    const editBtn = el('button',{class:'row-btn',title:'Bearbeiten',text:'✎'});
+    const delBtn  = el('button',{class:'row-btn del',title:'Eintrag löschen',text:'✕'});
+    actions.appendChild(editBtn); actions.appendChild(delBtn);
+
+    delBtn.addEventListener('click',()=>{
+      if(!confirm('Diesen Eintrag löschen?')) return;
+      deleteDoc(entryDocFor(project,id)).catch(err=>{ console.error(err); alert('Konnte nicht gelöscht werden.'); });
+    });
+
+    editBtn.addEventListener('click',()=>{
+      const t = el('textarea',{rows:'2',maxlength:'4000'}); t.value=data.text;
+      const nt = el('textarea',{rows:'3',maxlength:'4000',placeholder:'Notiz / Details …',style:'margin-top:8px;'}); nt.value=data.note||'';
+      const save = el('button',{class:'btn small',text:'Speichern'});
+      const cancel = el('button',{class:'btn small ghost',text:'Abbrechen'});
+      const box = el('div',{class:'edit-box'},[t,nt,el('div',{class:'edit-actions'},[save,cancel])]);
+      li.innerHTML=''; li.appendChild(idx); li.appendChild(box); t.focus();
+      cancel.addEventListener('click',()=>{
+        li.replaceWith(buildEntry(project,id,data,index));
+      });
+      save.addEventListener('click',async()=>{
+        const val = t.value.trim(); if(!val) return;
+        save.disabled=true;
+        try{ await updateDoc(entryDocFor(project,id),{text:val,note:nt.value.trim(),updatedAt:serverTimestamp()}); }
+        catch(err){ console.error(err); alert('Konnte nicht gespeichert werden.'); save.disabled=false; }
+      });
+    });
+
+    li.appendChild(idx);
+    li.appendChild(checkbox);
+    li.appendChild(body);
+    li.appendChild(actions);
+    return li;
+  }
+
+  // Start
+  router();
+</script>
+</body>
+</html>
