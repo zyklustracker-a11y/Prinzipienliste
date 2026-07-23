@@ -457,6 +457,18 @@
     return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'}) + ' · ' +
            d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   }
+  function describeError(err){
+    const code = (err && err.code ? String(err.code) : '').replace(/^firestore\//,'');
+    if(code==='permission-denied')
+      return 'Zugriff verweigert (permission-denied) – die Firestore-Regeln blockieren den Zugriff.';
+    if(code==='unauthenticated')
+      return 'Nicht angemeldet (unauthenticated) – bitte neu einloggen.';
+    if(code==='unavailable')
+      return 'Datenbank nicht erreichbar (unavailable) – Internetverbindung prüfen.';
+    if(code==='failed-precondition')
+      return 'Fehlender Index (failed-precondition) – siehe Firebase-Konsole.';
+    return 'Verbindungsfehler'+(code?(' ('+code+')'):'')+' – Konfiguration prüfen.';
+  }
 
   // ── Konfiguration prüfen ───────────────────────────────────
   const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== "DEIN_API_KEY";
@@ -573,7 +585,7 @@
     },(err)=>{
       console.error(err);
       statusDot.classList.add('offline');
-      statusText.textContent='Verbindungsfehler – Konfiguration prüfen';
+      statusText.textContent=describeError(err);
     }));
   }
 
@@ -852,7 +864,7 @@
     },(err)=>{
       console.error(err);
       statusDot.classList.add('offline');
-      statusText.textContent='Verbindungsfehler – Konfiguration prüfen';
+      statusText.textContent=describeError(err);
     }));
   }
 
