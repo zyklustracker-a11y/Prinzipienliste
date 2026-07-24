@@ -1079,11 +1079,10 @@
          niemals über einen onSnapshot-Listener (Start bleibt schnell).
          ============================================================ */
 
-      // Ist ElevenLabs vollständig konfiguriert?
-      function elevenReady(){
-        return ELEVEN_API_KEY && ELEVEN_API_KEY.indexOf("HIER_") === -1 &&
-               !!getVoiceId() && getVoiceId().indexOf("HIER_") === -1;
-      }
+      // Nur der Key nötig (z. B. zum Laden der Stimmenliste).
+      function keyReady(){ return !!ELEVEN_API_KEY && ELEVEN_API_KEY.indexOf("HIER_") === -1; }
+      // Vollständig konfiguriert = Key + gewählte Stimme (zum Erzeugen von Audios).
+      function elevenReady(){ return keyReady() && !!getVoiceId() && getVoiceId().indexOf("HIER_") === -1; }
       function getVoiceId(){
         try{ var v = localStorage.getItem("prinzipien-voice-id"); if(v) return v; }catch(e){}
         return ELEVEN_VOICE_ID;
@@ -1271,7 +1270,8 @@
       function updateConfigHint(){
         if(!configHint) return;
         if(elevenReady()){ configHint.textContent = "ElevenLabs ist konfiguriert. Aktive Voice-ID: " + getVoiceId(); }
-        else { configHint.textContent = "Hinweis: ELEVEN_API_KEY und/oder ELEVEN_VOICE_ID sind oben im Script noch nicht eingetragen. Ohne sie lassen sich keine Audios erzeugen."; }
+        else if(keyReady()){ configHint.textContent = "API-Key vorhanden. Wähle oben eine Stimme („Stimmen laden“), dann können Audios erzeugt werden."; }
+        else { configHint.textContent = "Hinweis: ELEVEN_API_KEY ist oben im Script noch nicht eingetragen. Ohne ihn lassen sich keine Stimmen laden und keine Audios erzeugen."; }
       }
       function setOpen(){
         if(!setScreen) return;
@@ -1304,7 +1304,7 @@
 
       function loadVoicesIntoSelect(){
         if(!voiceSelect) return;
-        if(!elevenReady()){ voiceStatus.className = "settings-status err"; voiceStatus.textContent = "Key/Voice-ID fehlt (oben im Script)."; return; }
+        if(!keyReady()){ voiceStatus.className = "settings-status err"; voiceStatus.textContent = "API-Key fehlt (oben im Script eintragen)."; return; }
         voiceLoadBtn.disabled = true; voiceStatus.className = "settings-status"; voiceStatus.textContent = "Lade Stimmen …";
         elevenVoices().then(function(list){
           voiceSelect.innerHTML = "";
@@ -1328,8 +1328,9 @@
 
       if(voiceSample){
         voiceSample.addEventListener("click", function(){
-          if(!elevenReady()){ voiceStatus.className = "settings-status err"; voiceStatus.textContent = "Key/Voice-ID fehlt."; return; }
+          if(!keyReady()){ voiceStatus.className = "settings-status err"; voiceStatus.textContent = "API-Key fehlt (oben im Script)."; return; }
           var vid = (voiceSelect && voiceSelect.value) ? voiceSelect.value : getVoiceId();
+          if(!vid || vid.indexOf("HIER_") === 0){ voiceStatus.className = "settings-status err"; voiceStatus.textContent = "Bitte zuerst „Stimmen laden“ und eine Stimme auswählen."; return; }
           voiceSample.disabled = true; voiceStatus.className = "settings-status"; voiceStatus.textContent = "Erzeuge Beispiel …";
           // Wiedergabe erfolgt im selben Klick-Handler -> von iOS als Nutzergeste akzeptiert.
           if(!sampleAudio){ sampleAudio = new Audio(); sampleAudio.setAttribute("playsinline", ""); }
