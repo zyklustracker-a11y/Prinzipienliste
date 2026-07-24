@@ -597,7 +597,8 @@
       var FB_VERSION = "10.13.0";
       var COL_P = "prinzipien";
       var COL_C = "kategorien";
-      var COL_A = "audio";   // Audio-Dokumente – NICHT beim Start geladen, nur einzeln bei Bedarf
+      var COL_A = "audio";           // Audio-Dokumente – NICHT beim Start geladen, nur einzeln bei Bedarf
+      var COL_S = "einstellungen";   // kleine, geräteübergreifend synchronisierte Einstellungen (z. B. Stimme)
       var isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("HIER") === -1;
 
       var CATEGORY_NAMES = ["Charakter & Werte","Disziplin & Fokus","Gesundheit & Körper","Ernährung & Fasten","Beziehung & Familie","Karriere & Zukunft"];
@@ -684,7 +685,9 @@
           setupCategories:function(names){ var map={}; names.forEach(function(n){ var c={id:genId(), name:n}; cArr.push(c); map[n]=c.id; }); persist(); emit(); return Promise.resolve(map); },
           getAudio:function(id){ return Promise.resolve(aMap[id] ? { data:aMap[id].data||"", hash:aMap[id].hash||"", voiceId:aMap[id].voiceId||"", updatedAt:aMap[id].updatedAt||null } : null); },
           saveAudio:function(id, obj){ aMap[id] = { data:obj.data, hash:obj.hash, voiceId:obj.voiceId, updatedAt:Date.now() }; persistAudio(); pArr.forEach(function(p){ if(p.id===id) p.audioHash=obj.hash; }); persist(); emit(); return Promise.resolve(); },
-          deleteAudio:function(id){ delete aMap[id]; persistAudio(); pArr.forEach(function(p){ if(p.id===id) p.audioHash=null; }); persist(); emit(); return Promise.resolve(); }
+          deleteAudio:function(id){ delete aMap[id]; persistAudio(); pArr.forEach(function(p){ if(p.id===id) p.audioHash=null; }); persist(); emit(); return Promise.resolve(); },
+          subscribeVoiceId:function(cb){ /* lokal: keine Synchronisierung, getVoiceId nutzt localStorage/Konstante */ },
+          saveVoiceId:function(v){ return Promise.resolve(); }
         };
       }
 
@@ -750,7 +753,14 @@
                 return fs.deleteDoc(fs.doc(db, COL_A, id)).then(function(){
                   return fs.updateDoc(fs.doc(db, COL_P, id), { audioHash: fs.deleteField() });
                 });
-              }
+              },
+              /* ---- Geräteübergreifende Stimme: EIN kleines Dokument, live synchronisiert ---- */
+              subscribeVoiceId:function(cb){
+                fs.onSnapshot(fs.doc(db, COL_S, "audio"), function(snap){
+                  if(snap.exists()){ var x = snap.data(); if(x && x.voiceId) cb(x.voiceId); }
+                }, function(e){ console.error(e); });
+              },
+              saveVoiceId:function(v){ return fs.setDoc(fs.doc(db, COL_S, "audio"), { voiceId: v }, { merge: true }); }
             };
           });
         });
@@ -1092,11 +1102,18 @@
       function keyReady(){ return !!ELEVEN_API_KEY && ELEVEN_API_KEY.indexOf("HIER_") === -1; }
       // Vollständig konfiguriert = Key + gewählte Stimme (zum Erzeugen von Audios).
       function elevenReady(){ return keyReady() && !!getVoiceId() && getVoiceId().indexOf("HIER_") === -1; }
+      // Priorität: geräteübergreifend synchronisierte Stimme (Firestore) -> lokaler Cache -> Konstante.
+      var syncedVoiceId = null;
       function getVoiceId(){
+        if(syncedVoiceId && syncedVoiceId.indexOf("HIER_") !== 0) return syncedVoiceId;
         try{ var v = localStorage.getItem("prinzipien-voice-id"); if(v) return v; }catch(e){}
         return ELEVEN_VOICE_ID;
       }
-      function setVoiceId(v){ try{ localStorage.setItem("prinzipien-voice-id", v); }catch(e){} }
+      function setVoiceId(v){
+        syncedVoiceId = v;
+        try{ localStorage.setItem("prinzipien-voice-id", v); }catch(e){}   // Offline-Cache
+        if(store && store.saveVoiceId){ Promise.resolve(store.saveVoiceId(v)).catch(function(){}); }  // an alle Geräte
+      }
 
       // SHA-256, erste 12 Hex-Zeichen. Braucht Secure Context (https) – auf Netlify gegeben.
       function hashText(text){
@@ -1784,6 +1801,19 @@
           scheduleRender();   // nicht renderAll(): kein Neuaufbau während des Tippens
           if(snap.categoriesLoaded) maybeSetup();
         });
+        // Geräteübergreifend gewählte Stimme live übernehmen (winziges Dokument).
+        if(store.subscribeVoiceId){
+          store.subscribeVoiceId(function(v){
+            if(!v) return;
+            syncedVoiceId = v;
+            try{ localStorage.setItem("prinzipien-voice-id", v); }catch(e){}
+            if(voiceSelect){
+              var has = Array.prototype.some.call(voiceSelect.options, function(o){ return o.value === v; });
+              if(has) voiceSelect.value = v;
+            }
+            updateConfigHint();
+          });
+        }
       }
       renderAll(); // leeren Zustand sofort anzeigen
       if(isConfigured){
