@@ -343,6 +343,14 @@
     }
     .festigen-note.loading{ color:var(--paper-text-dim); }
 
+    /* Festigen: dauerhafter dezenter Stummschalter-Hinweis am unteren Rand */
+    .festigen-foot{
+      flex-shrink:0; text-align:center;
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.02em;
+      color:var(--paper-text-dim); opacity:.6;
+      padding:0 20px calc(16px + env(safe-area-inset-bottom));
+    }
+
     /* ===== Einstellungs-Screen (Overlay wie Festigen) ===== */
     #settings-screen{
       position:fixed; inset:0; z-index:160; background:var(--ink-bg);
@@ -485,6 +493,7 @@
     <div class="festigen-stage">
       <div class="festigen-card" id="festigen-card" aria-live="polite"></div>
     </div>
+    <div class="festigen-foot">Kein Ton? Stummschalter (seitlich am iPhone) prüfen – er schaltet auch Web-Audio stumm.</div>
   </div>
 
   <div id="toast" role="status" aria-live="polite"></div>
@@ -1402,6 +1411,24 @@
       // iOS: EIN wiederverwendetes Audio-Element für alle Prinzipien (nur src wechseln).
       var festAudio = null, festAudioUnlockUrl = null;
       var festClips = {}, festHashes = {};   // id -> {hash,url}  /  id -> hash
+      var festWakeLock = null;   // hält den Bildschirm während des Durchlaufs wach
+
+      // Bildschirm wach halten (iOS 16.4+/iPhone 15 unterstützt die Screen Wake Lock API).
+      function festRequestWake(){
+        try{
+          if(navigator.wakeLock && navigator.wakeLock.request){
+            navigator.wakeLock.request("screen").then(function(wl){ festWakeLock = wl; }).catch(function(){});
+          }
+        }catch(e){}
+      }
+      function festReleaseWake(){
+        try{ if(festWakeLock){ festWakeLock.release(); } }catch(e){}
+        festWakeLock = null;
+      }
+      // Wake Lock geht beim Wegwischen/Sperren verloren – bei Rückkehr erneut anfordern.
+      document.addEventListener("visibilitychange", function(){
+        if(festActive && document.visibilityState === "visible" && !festWakeLock){ festRequestWake(); }
+      });
 
       // Stimmen früh anstoßen – in manchen Browsern werden sie erst asynchron geladen.
       if(hasTTS){
@@ -1684,6 +1711,7 @@
         try{ history.pushState({ festigen:true }, ""); festPushedState = true; }catch(e){ festPushedState = false; }
         // iOS: Audio-Element JETZT (in der Nutzergeste) freischalten, dann laden, dann starten.
         festUnlockAudio();
+        festRequestWake();      // Bildschirm während des Durchlaufs wach halten
         festShowLoading();
         festPreloadAndBegin();
       }
@@ -1691,6 +1719,7 @@
       // Screen abbauen und zur Startseite zurück.
       function festTeardown(){
         festActive = false;
+        festReleaseWake();
         festStopSpeech();
         festScreen.classList.remove("active");
         festScreen.setAttribute("aria-hidden", "true");
