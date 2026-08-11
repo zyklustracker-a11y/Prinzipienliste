@@ -7,10 +7,13 @@ compatibility_date = "2025-06-01"
 [triggers]
 crons = ["* * * * *"]
 
-# Speicher fuer die Abos. Die id traegt setup.sh beim ersten Deploy ein.
+# Speicher fuer die Abos. Beim ersten Deploy von setup.sh angelegt und hier
+# eingetragen. Kein Geheimnis -- die ID benennt nur den Namespace, der Zugriff
+# haengt am Cloudflare-Konto. Sie gehoert ins Repository, damit ein spaeterer
+# Neu-Klon denselben Speicher nutzt statt einen zweiten anzulegen.
 [[kv_namespaces]]
 binding = "SUBS"
-id = "HIER_TRAEGT_SETUP_SH_DIE_KV_ID_EIN"
+id = "4e72bf5551f54e29970437b8e90ff499"
 
 [vars]
 # Woher darf das Frontend zugreifen (CORS). Mehrere durch Komma getrennt.
