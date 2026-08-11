@@ -1,0 +1,18 @@
+# ── Secrets: NICHTS hiervon darf ins Repository (es ist oeffentlich) ──
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+*.secret
+vapid*.json
+vapid*.txt
+.wrangler/
+push-server/.dev.vars
+push-server/.env
+push-server/vapid-keys.json
+push-server/.wrangler/
+
+# Abhaengigkeiten und Build-Reste
+node_modules/
+npm-debug.log*
+.DS_Store

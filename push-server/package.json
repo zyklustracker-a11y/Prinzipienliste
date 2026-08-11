@@ -1,0 +1,17 @@
+{
+  "name": "prinzipien-push",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Push-Server fuer die Abenderinnerung der Prinzipien-App (Cloudflare Worker, ohne Abhaengigkeiten)",
+  "scripts": {
+    "setup": "bash setup.sh",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "vapid": "node generate-vapid.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

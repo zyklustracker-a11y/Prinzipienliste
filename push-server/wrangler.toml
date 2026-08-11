@@ -1,0 +1,34 @@
+name = "prinzipien-push"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# Cron: jede Minute pruefen, fuer wen gerade die eingestellte Uhrzeit erreicht ist.
+# Die Zeitzonen-Rechnung passiert im Worker, dieser Trigger laeuft in UTC.
+[triggers]
+crons = ["* * * * *"]
+
+# Speicher fuer die Abos. Die id traegt setup.sh beim ersten Deploy ein.
+[[kv_namespaces]]
+binding = "SUBS"
+id = "HIER_TRAEGT_SETUP_SH_DIE_KV_ID_EIN"
+
+[vars]
+# Woher darf das Frontend zugreifen (CORS). Mehrere durch Komma getrennt.
+ALLOWED_ORIGIN = "https://zyklustracker-a11y.github.io"
+
+# Ziel beim Antippen der Benachrichtigung.
+APP_URL = "https://zyklustracker-a11y.github.io/Prinzipienliste/"
+
+# Fuer den VAPID-Header vorgeschrieben: eine Kontaktadresse.
+VAPID_SUBJECT = "mailto:luca.toriellolt@gmail.com"
+
+# Text der Erinnerung. Aendern + `npx wrangler deploy` genuegt, die App
+# bleibt unberuehrt. Ganz ohne Deploy geht es ueber /subscribe (siehe README).
+NOTIFY_TITLE = "Meine Prinzipien"
+NOTIFY_BODY = "Zeit, deine Prinzipien zu festigen."
+
+# ── NICHT hier eintragen, das hier ist ein oeffentliches Repository ──
+# Diese drei sind Worker-Secrets (`npx wrangler secret put NAME`):
+#   VAPID_PUBLIC_KEY
+#   VAPID_PRIVATE_KEY
+#   SHARED_SECRET
