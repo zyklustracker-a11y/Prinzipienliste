@@ -291,6 +291,29 @@
     .festigen-stage{
       flex:1; display:flex; align-items:center; justify-content:center;
       overflow-y:auto; padding:40px 60px calc(56px + env(safe-area-inset-bottom));
+      /* Halten zum Pausieren: iOS darf hier weder das Lupen-/Teilen-Menü
+         einblenden noch Text markieren. touch-action bleibt bewusst auf
+         Standard, damit vertikales Scrollen weiter funktioniert – ein
+         Bildlauf wird stattdessen über die 10px-Toleranz erkannt. */
+      -webkit-touch-callout:none; -webkit-user-select:none; user-select:none;
+      transition:opacity .18s ease;
+    }
+    #festigen-screen.is-held .festigen-stage{ opacity:.45; }
+
+    /* Dezente Rückmeldung, dass gerade pausiert ist */
+    .festigen-hold{
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.94);
+      display:flex; align-items:center; gap:9px; z-index:8; pointer-events:none;
+      background:rgba(27,29,33,.86); border:1px solid var(--brass-dim); color:var(--brass);
+      font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+      padding:11px 18px; border-radius:999px;
+      box-shadow:0 8px 28px rgba(0,0,0,.45);
+      opacity:0; transition:opacity .16s ease, transform .16s ease;
+    }
+    .festigen-hold svg{ width:15px; height:15px; display:block; }
+    #festigen-screen.is-held .festigen-hold{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+    @media (prefers-reduced-motion:reduce){
+      .festigen-hold, .festigen-stage{ transition:none; }
     }
     .festigen-card{ width:100%; max-width:640px; }
     .festigen-inner{ animation:festFade .55s ease both; }
@@ -795,8 +818,12 @@
     <button type="button" class="festigen-nav next" id="festigen-next" aria-label="Nächstes Prinzip" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
     </button>
-    <div class="festigen-stage">
+    <div class="festigen-stage" id="festigen-stage">
       <div class="festigen-card" id="festigen-card" aria-live="polite"></div>
+    </div>
+    <div class="festigen-hold" id="festigen-hold" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+      <span>Pause</span>
     </div>
     <div class="festigen-speed" id="festigen-speed" role="group" aria-label="Abspielgeschwindigkeit"></div>
     <div class="festigen-foot">Kein Ton? Stummschalter (seitlich am iPhone) prüfen – er schaltet auch Web-Audio stumm.</div>
@@ -2598,20 +2625,152 @@
         // Umgeht den bekannten Chrome-Bug, der lange Sprachausgaben nach ~15 s abbricht.
         festKeepAlive = setInterval(function(){
           if(!festActive || !hasTTS || !window.speechSynthesis.speaking){ return; }
+          // Waehrend einer Halte-Pause NICHT anfassen – das resume() wuerde
+          // die Sprachausgabe genau dann wieder anwerfen, wenn sie stehen soll.
+          if(holdPaused){ return; }
           try{ window.speechSynthesis.pause(); window.speechSynthesis.resume(); }catch(e){}
         }, 10000);
+      }
+
+      /* Der Notbremsen-Timer muss sich anhalten lassen, sonst blaettert die
+         Karte weiter, waehrend der Finger auf dem Bildschirm liegt. */
+      var festFallbackAt = 0, festFallbackLeft = 0;
+      function festSetFallback(ms){
+        if(festFallback) clearTimeout(festFallback);
+        festFallbackAt = Date.now(); festFallbackLeft = ms;
+        festFallback = setTimeout(function(){ festFallback = null; festAdvance(); }, ms);
+      }
+      function festFreezeFallback(){
+        if(!festFallback) return;
+        clearTimeout(festFallback); festFallback = null;
+        festFallbackLeft = Math.max(0, festFallbackLeft - (Date.now() - festFallbackAt));
+      }
+      function festThawFallback(){
+        if(festFallback || !festFallbackLeft) return;
+        festSetFallback(festFallbackLeft);
       }
 
       function festClearTimers(){
         festStopKeepAlive();
         if(festFallback){ clearTimeout(festFallback); festFallback = null; }
+        festFallbackLeft = 0;
         if(festNavTimer){ clearTimeout(festNavTimer); festNavTimer = null; }
       }
+
+      /* ============================================================
+         GEDRUECKT HALTEN = PAUSE
+         Finger auf die Wiedergabeflaeche legen und halten -> Audio haelt
+         an; loslassen -> es laeuft an derselben Stelle weiter.
+
+         Bewusst ueber Pointer Events statt touchstart: damit gilt dasselbe
+         fuer Maus und Stift, und pointercancel liefert das Signal, wenn der
+         Browser die Geste an sich zieht (typisch beim Scrollen).
+
+         Zwei Abgrenzungen: Ein kurzer Tap (< HOLD_MS) pausiert nicht, und
+         wandert der Finger weiter als HOLD_TOLERANCE, gilt es als Bildlauf.
+         ============================================================ */
+      var HOLD_MS = 150;          // ab hier gilt es als "halten"
+      var HOLD_TOLERANCE = 10;    // px – darueber ist es ein Bildlauf
+      var holdTimer = null, holdPointerId = null, holdX = 0, holdY = 0;
+      var holdPaused = false, holdWasPlaying = false;
+      var festStageEl = document.getElementById("festigen-stage");
+      var festHoldEl  = document.getElementById("festigen-hold");
+
+      function holdShow(on){
+        if(festScreen) festScreen.classList.toggle("is-held", !!on);
+        if(festHoldEl) festHoldEl.setAttribute("aria-hidden", on ? "false" : "true");
+      }
+
+      function holdPause(){
+        if(holdPaused || !festActive) return;
+        holdPaused = true;
+        holdWasPlaying = false;
+        // 1) laufende MP3
+        if(festAudio && !festAudio.paused){
+          holdWasPlaying = true;
+          try{ festAudio.pause(); }catch(e){}
+        }
+        // 2) Systemstimme
+        if(hasTTS){
+          try{ if(window.speechSynthesis.speaking && !window.speechSynthesis.paused){ window.speechSynthesis.pause(); } }catch(e){}
+        }
+        // 3) Notbremsen-Timer einfrieren
+        festFreezeFallback();
+        holdShow(true);
+      }
+
+      function holdResume(){
+        if(!holdPaused) return;
+        holdPaused = false;
+        holdShow(false);
+        if(!festActive) return;
+        // An derselben Stelle weiter – currentTime wird nicht angefasst.
+        if(holdWasPlaying && festAudio){
+          applyRate(festAudio);
+          try{ var pr = festAudio.play(); if(pr && pr.catch) pr.catch(function(){}); }catch(e){}
+        }
+        if(hasTTS){
+          try{ if(window.speechSynthesis.paused){ window.speechSynthesis.resume(); } }catch(e){}
+        }
+        festThawFallback();
+      }
+
+      // Geste vollstaendig beenden: Timer weg, Pause aufheben. Das ist das
+      // Sicherheitsnetz, damit das Audio nie dauerhaft pausiert haengenbleibt.
+      function holdRelease(){
+        if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+        holdPointerId = null;
+        holdResume();
+      }
+
+      if(festStageEl && window.PointerEvent){
+        festStageEl.addEventListener("pointerdown", function(e){
+          if(!festActive) return;
+          if(holdPointerId !== null) return;                 // nur der erste Finger zaehlt
+          if(e.pointerType === "mouse" && e.button !== 0) return;
+          holdPointerId = e.pointerId; holdX = e.clientX; holdY = e.clientY;
+          if(holdTimer) clearTimeout(holdTimer);
+          holdTimer = setTimeout(function(){
+            holdTimer = null;
+            if(holdPointerId !== null) holdPause();
+          }, HOLD_MS);
+        });
+
+        festStageEl.addEventListener("pointermove", function(e){
+          if(e.pointerId !== holdPointerId) return;
+          var dx = e.clientX - holdX, dy = e.clientY - holdY;
+          if((dx*dx + dy*dy) > (HOLD_TOLERANCE * HOLD_TOLERANCE)){
+            holdRelease();   // Bildlauf, keine Pause
+          }
+        });
+
+        // pointerup: normales Loslassen. pointercancel: der Browser hat die
+        // Geste uebernommen (Scrollen, System-Geste) – gleiche Behandlung.
+        ["pointerup", "pointercancel", "pointerleave"].forEach(function(t){
+          festStageEl.addEventListener(t, function(e){
+            if(e.pointerId !== holdPointerId) return;
+            holdRelease();
+          });
+        });
+      }
+
+      // Wechsel in den Hintergrund / Fenster verlassen: Geste aufloesen, damit
+      // beim Zurueckkommen nichts stumm stehenbleibt.
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState !== "visible"){ holdRelease(); }
+      });
+      window.addEventListener("blur", function(){ holdRelease(); });
+      window.addEventListener("pagehide", function(){ holdRelease(); });
 
       function festStopSpeech(){
         if(festUtter){ festUtter.onend = null; festUtter.onerror = null; festUtter = null; }
         festClearTimers();
         festStopAudioEl();
+        // Halte-Pause faellt mit der Ausgabe weg, sonst zeigte die Karte
+        // "Pause" an, obwohl laengst etwas anderes laeuft.
+        if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+        holdPointerId = null; holdPaused = false; holdWasPlaying = false;
+        holdShow(false);
         if(hasTTS){ try{ window.speechSynthesis.cancel(); }catch(e){} }
       }
 
@@ -2701,7 +2860,7 @@
       function festFallbackToSpeech(it){
         festMarkNote();
         if(hasTTS){ festSpeakText(it.spoken, false); }
-        else { festFallback = setTimeout(festAdvance, festFallbackMs(it.spoken)); }
+        else { festSetFallback(festFallbackMs(it.spoken)); }
       }
 
       // Aktuelles Item vertonen: MP3 wenn aktuell vorhanden, sonst Sprachausgabe.
@@ -2752,12 +2911,12 @@
         u.onerror = function(){
           if(!(festActive && festUtter === u)) return;
           if(!isRetry){ festSpeakText(text, true); }           // einmal mit Standardstimme wiederholen
-          else { festFallback = setTimeout(festAdvance, 500); } // sonst weiter
+          else { festSetFallback(500); } // sonst weiter
         };
         festUtter = u;
         festStartKeepAlive();
         try{ window.speechSynthesis.speak(u); }
-        catch(e){ festFallback = setTimeout(festAdvance, festFallbackMs(text)); }
+        catch(e){ festSetFallback(festFallbackMs(text)); }
       }
 
       function festFinish(){
