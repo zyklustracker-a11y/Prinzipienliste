@@ -417,6 +417,128 @@
       font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--paper-text-dim);
       line-height:1.6; margin-top:14px; border-top:1px solid var(--hairline); padding-top:14px;
     }
+    /* ===== Werte: Ansichts-Umschalter, Chips, Liste ===== */
+    .view-switch{
+      display:flex; gap:4px; margin:0 0 20px;
+      background:var(--ink-bg-raised); border:1px solid var(--hairline);
+      border-radius:999px; padding:4px;
+    }
+    .view-switch button{
+      flex:1 1 0; background:none; border:none; cursor:pointer;
+      font-family:'Inter',sans-serif; font-size:13.5px; font-weight:600;
+      color:var(--paper-text-dim); min-height:38px; border-radius:999px;
+      transition:background .12s ease, color .12s ease;
+    }
+    .view-switch button:hover{ color:var(--paper-text); }
+    .view-switch button.active{ background:var(--brass); color:#1b1d21; }
+    .view-switch:empty{ display:none; }
+    body.locked .view-switch{ display:none; }
+
+    /* Abschnitts-Überschrift in der Ansicht „Alles" */
+    .section-head{
+      font-family:'Fraunces','Georgia',serif; font-size:24px; font-weight:500;
+      letter-spacing:-0.01em; color:var(--paper-text);
+      margin:44px 0 18px; padding-bottom:10px; border-bottom:1px solid var(--hairline);
+    }
+    .section-head.first{ margin-top:0; }
+
+    /* Wert-Chips unter einem Prinzip */
+    .wert-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .wert-chip{
+      background:rgba(122,155,118,.12); border:1px solid var(--sage-dim); color:var(--sage);
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.03em;
+      padding:5px 11px; border-radius:999px; cursor:pointer; min-height:28px;
+      transition:background .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .wert-chip:hover{ background:rgba(122,155,118,.22); color:var(--paper-text); }
+
+    /* Auswahl-Chips im Bearbeiten-/Anlegen-Dialog */
+    .wert-picker{ margin:0 0 12px; }
+    .wert-picker-label{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--paper-text-dim);
+      text-transform:uppercase; letter-spacing:.06em; display:block; margin-bottom:8px;
+    }
+    .wert-picker-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+    .wert-pick{
+      background:none; border:1px solid var(--hairline); color:var(--paper-text-dim);
+      font-family:'Inter',sans-serif; font-size:13px; font-weight:500;
+      padding:7px 13px; border-radius:999px; cursor:pointer; min-height:34px;
+      transition:background .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .wert-pick:hover{ border-color:var(--sage-dim); color:var(--paper-text); }
+    .wert-pick.on{ background:var(--sage); border-color:var(--sage); color:#1b1d21; font-weight:600; }
+    .wert-pick.new{ color:var(--brass); border-style:dashed; border-color:var(--brass-dim); }
+    .wert-pick.new:hover{ background:rgba(192,133,82,.10); color:var(--brass); }
+    .wert-new-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+
+    /* Filterzeile */
+    .wert-filter-row{ display:flex; align-items:center; gap:10px; margin:0 0 20px; flex-wrap:wrap; }
+    .wert-filter-row label{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--paper-text-dim);
+      text-transform:uppercase; letter-spacing:.06em; flex-shrink:0;
+    }
+    .filter-toggle{
+      display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+      font-family:'Inter',sans-serif; font-size:13.5px; color:var(--paper-text-dim);
+      background:none; border:1px solid var(--hairline); border-radius:999px;
+      padding:0 15px; min-height:38px; transition:border-color .12s ease, color .12s ease, background .12s ease;
+    }
+    .filter-toggle:hover{ border-color:var(--sage-dim); color:var(--paper-text); }
+    .filter-toggle.on{ background:rgba(122,155,118,.14); border-color:var(--sage); color:var(--sage); font-weight:600; }
+    .filter-toggle .box{
+      width:15px; height:15px; border-radius:3px; border:1px solid currentColor;
+      flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; font-size:11px; line-height:1;
+    }
+
+    /* Werte-Liste */
+    li.wert-entry{ padding:16px 0; border-bottom:1px solid var(--hairline); }
+    .wert-head{ display:flex; align-items:flex-start; gap:14px; }
+    .wert-main{
+      flex:1; min-width:0; background:none; border:none; padding:0; text-align:left; cursor:pointer;
+      color:var(--paper-text); font-family:inherit;
+    }
+    .wert-name{ font-family:'Fraunces','Georgia',serif; font-size:19px; font-weight:500; letter-spacing:-0.01em; }
+    .wert-desc{ color:var(--paper-text-dim); font-size:14px; line-height:1.5; margin-top:4px; white-space:pre-wrap; word-break:break-word; }
+    .wert-count{
+      font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.03em;
+      color:var(--brass-dim); margin-top:7px;
+    }
+    .wert-count.zero{ color:var(--paper-text-dim); }
+    .wert-linked{ list-style:none; margin:12px 0 0; padding:0 0 0 14px; border-left:1px solid var(--hairline); }
+    .wert-linked li{
+      font-size:14px; line-height:1.5; color:var(--paper-text-dim); padding:5px 0;
+    }
+    .wert-linked li strong{ color:var(--paper-text); font-weight:500; }
+    .wert-edit-row{ display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+    .wert-edit-row .cat-input{ flex:1 1 100%; }
+
+    /* Wiedergabe-Auswahl in den Einstellungen */
+    .mode-list{ display:flex; flex-direction:column; gap:8px; }
+    .mode-opt{
+      display:flex; align-items:flex-start; gap:11px; cursor:pointer;
+      background:none; border:1px solid var(--hairline); border-radius:4px;
+      padding:13px 15px; text-align:left; color:var(--paper-text);
+      font-family:'Inter',sans-serif; transition:border-color .12s ease, background .12s ease;
+    }
+    .mode-opt:hover{ border-color:var(--brass-dim); }
+    .mode-opt.on{ border-color:var(--brass); background:rgba(192,133,82,.08); }
+    .mode-opt .dot{
+      width:16px; height:16px; border-radius:50%; border:1px solid var(--paper-text-dim);
+      flex-shrink:0; margin-top:2px; display:inline-flex; align-items:center; justify-content:center;
+    }
+    .mode-opt.on .dot{ border-color:var(--brass); }
+    .mode-opt.on .dot::after{ content:""; width:8px; height:8px; border-radius:50%; background:var(--brass); }
+    .mode-opt .mode-txt{ flex:1; min-width:0; }
+    .mode-opt .mode-name{ font-size:14.5px; font-weight:600; }
+    .mode-opt .mode-sub{ font-size:12.5px; color:var(--paper-text-dim); line-height:1.5; margin-top:3px; }
+
+    /* Festigen: Wert-Karte im Block-Modus */
+    .festigen-kind{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.06em;
+      text-transform:uppercase; color:var(--sage); margin:0 0 12px;
+    }
+    .festigen-inner.is-wert .festigen-title{ color:var(--sage); }
+
     /* ── Splash-/Ladescreen ──────────────────────────────────── */
     html.splash-active, html.splash-active body{ overflow:hidden; }
     #app-splash{
@@ -555,23 +677,46 @@
       <button type="button" class="linklike" id="settings-launch">Audio-Einstellungen</button>
     </div>
 
-    <div class="tabs" id="tabs"></div>
-    <div class="manage" id="manage"></div>
+    <div class="view-switch" id="view-switch" role="tablist" aria-label="Ansicht wählen"></div>
 
-    <form class="add-row" id="add-form" autocomplete="off">
-      <input type="text" id="principle-input" placeholder="Neues Prinzip …" aria-label="Neues Prinzip eingeben" maxlength="500"
-             enterkeyhint="done" autocapitalize="sentences" autocorrect="on" spellcheck="true">
-      <button type="submit" class="add-btn" aria-label="Prinzip hinzufügen">
-        <span class="plus" aria-hidden="true">+</span><span class="label">Hinzufügen</span>
-      </button>
-    </form>
+    <!-- Ansicht: Prinzipien -->
+    <div id="view-prinzipien">
+      <h2 class="section-head first" id="head-prinzipien" style="display:none;">Prinzipien</h2>
 
-    <div class="cat-select-row" id="cat-select-row">
-      <label for="cat-select">Kategorie</label>
-      <select class="cat-select" id="cat-select" aria-label="Kategorie für neues Prinzip"></select>
+      <div class="tabs" id="tabs"></div>
+      <div class="manage" id="manage"></div>
+
+      <div class="wert-filter-row" id="wert-filter-row" style="display:none;">
+        <label for="wert-filter">Wert</label>
+        <select class="cat-select" id="wert-filter" aria-label="Nach Wert filtern"></select>
+      </div>
+
+      <form class="add-row" id="add-form" autocomplete="off">
+        <input type="text" id="principle-input" placeholder="Neues Prinzip …" aria-label="Neues Prinzip eingeben" maxlength="500"
+               enterkeyhint="done" autocapitalize="sentences" autocorrect="on" spellcheck="true">
+        <button type="submit" class="add-btn" aria-label="Prinzip hinzufügen">
+          <span class="plus" aria-hidden="true">+</span><span class="label">Hinzufügen</span>
+        </button>
+      </form>
+
+      <div class="cat-select-row" id="cat-select-row">
+        <label for="cat-select">Kategorie</label>
+        <select class="cat-select" id="cat-select" aria-label="Kategorie für neues Prinzip"></select>
+      </div>
+
+      <div class="wert-picker" id="add-wert-picker"></div>
+
+      <ul class="entries" id="list" aria-live="polite"></ul>
     </div>
 
-    <ul class="entries" id="list" aria-live="polite"></ul>
+    <!-- Ansicht: Werte -->
+    <div id="view-werte">
+      <h2 class="section-head" id="head-werte" style="display:none;">Werte</h2>
+
+      <div class="wert-filter-row" id="werte-tools"></div>
+
+      <ul class="entries" id="werte-list" aria-live="polite"></ul>
+    </div>
 
     <footer>Alle Prinzipien werden gespeichert und über deine Geräte synchronisiert.</footer>
   </div>
@@ -600,8 +745,14 @@
       </div>
 
       <div class="settings-section">
+        <h3>Wiedergabe</h3>
+        <p class="settings-desc">Legt fest, was beim „Festigen“ vorgelesen wird. Die Auswahl bestimmt auch, welche Audios die Sammelaktion unten erzeugt.</p>
+        <div class="mode-list" id="play-mode-list" role="radiogroup" aria-label="Was vorgelesen wird"></div>
+      </div>
+
+      <div class="settings-section">
         <h3>Audios erzeugen</h3>
-        <p class="settings-desc">Erzeugt für alle Prinzipien, die noch kein Audio haben oder deren Audio veraltet ist, eine neue MP3. Läuft streng nacheinander (nicht parallel) wegen der Rate-Limits. Fehlgeschlagene werden am Ende aufgelistet.</p>
+        <p class="settings-desc">Erzeugt für alles, was laut Wiedergabe-Auswahl vorgelesen wird und noch kein Audio hat oder dessen Audio veraltet ist, eine neue MP3. Läuft streng nacheinander (nicht parallel) wegen der Rate-Limits. Fehlgeschlagene werden am Ende aufgelistet.</p>
         <div class="settings-row">
           <button type="button" class="settings-btn" id="bulk-start">Alle fehlenden und veralteten erzeugen</button>
           <button type="button" class="settings-btn secondary" id="bulk-cancel" style="display:none;">Abbrechen</button>
@@ -735,6 +886,34 @@
       var COL_C = "kategorien";
       var COL_A = "audio";           // Audio-Dokumente – NICHT beim Start geladen, nur einzeln bei Bedarf
       var COL_S = "einstellungen";   // kleine, geräteübergreifend synchronisierte Einstellungen (z. B. Stimme)
+      var COL_W = "werte";           // Werte (id, name, beschreibung, reihenfolge)
+      var COL_WA = "werte-audio";    // Audio-Dokumente der Werte – ebenfalls nur einzeln bei Bedarf
+
+      /* ============================================================
+         WERTE ↔ PRINZIPIEN (n:m)
+         Die Verknüpfung liegt als Array `werteIds` am Prinzip-Dokument.
+         Das ist in Firestore die übliche Form für eine n:m-Beziehung
+         dieser Größenordnung: ein Prinzip kann beliebig viele Werte
+         führen, ein Wert in beliebig vielen Prinzipien vorkommen, und
+         beide Seiten dürfen unverknüpft bleiben. Gegenüber einer
+         eigenen Verknüpfungs-Collection spart es eine dritte Live-
+         Verbindung und hält jede Änderung in einem einzigen Schreib-
+         vorgang – wichtig, weil die App ohne Transaktionen auskommt.
+
+         MIGRATION: Ein Prinzip ohne das Feld gilt als "keine Werte
+         verknüpft" (siehe docP() und den lokalen Store). Der Bestand
+         wird dabei NICHT angefasst – es gibt keinen Migrations-
+         Schreibvorgang, der vorhandene Prinzipien verändern könnte.
+         ============================================================ */
+      function normWerteIds(v){
+        if(!Array.isArray(v)) return [];
+        var out = [], seen = {};
+        v.forEach(function(x){
+          if(typeof x !== "string" || !x || seen[x]) return;
+          seen[x] = 1; out.push(x);
+        });
+        return out;
+      }
       var isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("HIER") === -1;
 
       var CATEGORY_NAMES = ["Charakter & Werte","Disziplin & Fokus","Gesundheit & Körper","Ernährung & Fasten","Beziehung & Familie","Karriere & Zukunft"];
@@ -769,6 +948,7 @@
       /* Zustand */
       var principles = [];
       var categories = [];
+      var werte = [];
       var activeCat = null;          // null = "Alle", sonst Kategorie-ID
       var store = null;
 
@@ -777,6 +957,20 @@
       var catAdding = false;         // neue Kategorie anlegen
       var catRenameId = null;        // Kategorie umbenennen
       var catConfirmDelId = null;    // Kategorie: Löschen bestätigen
+
+      /* Zustand: Werte */
+      var VIEW_KEY = "prinzipien-view";
+      var activeView = "prinzipien";        // "prinzipien" | "werte" | "alles"
+      try{ var vSaved = localStorage.getItem(VIEW_KEY); if(vSaved==="werte"||vSaved==="alles"||vSaved==="prinzipien") activeView = vSaved; }catch(e){}
+      var filterWertId = null;              // null = kein Wert-Filter
+      var onlyUnlinkedWerte = false;        // "Nur unverknüpfte Werte anzeigen"
+      var expandedWerte = {};               // wertId -> true, wenn aufgeklappt
+      var wertAdding = false;               // neuen Wert anlegen (Werte-Ansicht)
+      var wertEditId = null;                // Wert umbenennen/beschreiben
+      var wertConfirmDelId = null;          // Wert: Löschen bestätigen
+      var draftWerteIds = null;             // Auswahl im offenen Bearbeiten-Dialog
+      var addWerteIds = [];                 // Auswahl für das nächste neue Prinzip
+      var pickerNewFor = null;              // "add" | Prinzip-ID – Inline-Feld "Neuer Wert" offen
 
       /* Elemente */
       var tabsEl = document.getElementById("tabs");
@@ -789,6 +983,17 @@
       var toastEl = document.getElementById("toast");
       var toastTimer = null;
 
+      var viewSwitchEl  = document.getElementById("view-switch");
+      var viewPrinzEl   = document.getElementById("view-prinzipien");
+      var viewWerteEl   = document.getElementById("view-werte");
+      var headPrinzEl   = document.getElementById("head-prinzipien");
+      var headWerteEl   = document.getElementById("head-werte");
+      var wertFilterRow = document.getElementById("wert-filter-row");
+      var wertFilterSel = document.getElementById("wert-filter");
+      var werteToolsEl  = document.getElementById("werte-tools");
+      var werteListEl   = document.getElementById("werte-list");
+      var addPickerEl   = document.getElementById("add-wert-picker");
+
       var ICON_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
       var ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 
@@ -799,19 +1004,27 @@
         var KEY_P = "prinzipien-data";
         var KEY_C = "prinzipien-cats";
         var KEY_A = "prinzipien-audio";
+        var KEY_W = "prinzipien-werte";
+        var KEY_WA = "prinzipien-werte-audio";
         var pArr = loadArr(KEY_P);
         var cArr = loadArr(KEY_C);
+        var wArr = loadArr(KEY_W);
         var aMap = loadObj(KEY_A);   // { id: {data,hash,voiceId,updatedAt} }
+        var waMap = loadObj(KEY_WA); // dito für Werte
         var listeners = [];
+        // Bestand aus der Zeit vor den Werten hat kein werteIds – als leer behandeln, nicht schreiben.
+        pArr.forEach(function(p){ p.werteIds = normWerteIds(p.werteIds); });
         function loadArr(k){ try{ var r=localStorage.getItem(k); if(r){ var p=JSON.parse(r); if(Array.isArray(p)) return p; } }catch(e){} return []; }
         function loadObj(k){ try{ var r=localStorage.getItem(k); if(r){ var o=JSON.parse(r); if(o && typeof o==="object") return o; } }catch(e){} return {}; }
-        function persist(){ try{ localStorage.setItem(KEY_P, JSON.stringify(pArr)); localStorage.setItem(KEY_C, JSON.stringify(cArr)); }catch(e){} }
+        function persist(){ try{ localStorage.setItem(KEY_P, JSON.stringify(pArr)); localStorage.setItem(KEY_C, JSON.stringify(cArr)); localStorage.setItem(KEY_W, JSON.stringify(wArr)); }catch(e){} }
         function persistAudio(){ try{ localStorage.setItem(KEY_A, JSON.stringify(aMap)); }catch(e){} }
-        function emit(){ var s={ principles:pArr.slice(), categories:cArr.slice(), categoriesLoaded:true }; listeners.forEach(function(l){ l(s); }); }
+        function persistWertAudio(){ try{ localStorage.setItem(KEY_WA, JSON.stringify(waMap)); }catch(e){} }
+        function nextOrder(){ var m=0; wArr.forEach(function(w){ if(typeof w.reihenfolge==="number" && w.reihenfolge>m) m=w.reihenfolge; }); return m+1; }
+        function emit(){ var s={ principles:pArr.slice(), categories:cArr.slice(), werte:wArr.slice(), categoriesLoaded:true, werteLoaded:true }; listeners.forEach(function(l){ l(s); }); }
         return {
           mode:"local",
-          subscribe:function(cb){ listeners.push(cb); cb({principles:pArr.slice(), categories:cArr.slice(), categoriesLoaded:true}); },
-          addPrinciple:function(text, catId){ var it={id:genId(), text:text, categoryId:catId||null, audioHash:null}; pArr.push(it); persist(); emit(); return it.id; },
+          subscribe:function(cb){ listeners.push(cb); cb({principles:pArr.slice(), categories:cArr.slice(), werte:wArr.slice(), categoriesLoaded:true, werteLoaded:true}); },
+          addPrinciple:function(text, catId, werteIds){ var it={id:genId(), text:text, categoryId:catId||null, audioHash:null, werteIds:normWerteIds(werteIds)}; pArr.push(it); persist(); emit(); return it.id; },
           updatePrinciple:function(id, text){ pArr.forEach(function(p){ if(p.id===id) p.text=text; }); persist(); emit(); },
           movePrinciple:function(id, catId){ pArr.forEach(function(p){ if(p.id===id) p.categoryId=catId||null; }); persist(); emit(); },
           removePrinciple:function(id){ pArr=pArr.filter(function(p){ return p.id!==id; }); persist(); emit(); },
@@ -823,7 +1036,31 @@
           saveAudio:function(id, obj){ aMap[id] = { data:obj.data, hash:obj.hash, voiceId:obj.voiceId, updatedAt:Date.now() }; persistAudio(); pArr.forEach(function(p){ if(p.id===id) p.audioHash=obj.hash; }); persist(); emit(); return Promise.resolve(); },
           deleteAudio:function(id){ delete aMap[id]; persistAudio(); pArr.forEach(function(p){ if(p.id===id) p.audioHash=null; }); persist(); emit(); return Promise.resolve(); },
           subscribeVoiceId:function(cb){ /* lokal: keine Synchronisierung, getVoiceId nutzt localStorage/Konstante */ },
-          saveVoiceId:function(v){ return Promise.resolve(); }
+          saveVoiceId:function(v){ return Promise.resolve(); },
+
+          /* ---- Werte ---- */
+          addWert:function(name, beschreibung){
+            var w={ id:genId(), name:name, beschreibung:beschreibung||"", reihenfolge:nextOrder(), audioHash:null };
+            wArr.push(w); persist(); emit(); return w.id;
+          },
+          updateWert:function(id, name, beschreibung){
+            wArr.forEach(function(w){ if(w.id===id){ w.name=name; w.beschreibung=beschreibung||""; } });
+            persist(); emit(); return Promise.resolve();
+          },
+          removeWert:function(id){
+            wArr = wArr.filter(function(w){ return w.id!==id; });
+            // Nur die Verknüpfungen lösen – die Prinzipien selbst bleiben unverändert bestehen.
+            pArr.forEach(function(p){ p.werteIds = (p.werteIds||[]).filter(function(x){ return x!==id; }); });
+            delete waMap[id]; persistWertAudio();
+            persist(); emit(); return Promise.resolve();
+          },
+          setPrinzipWerte:function(pId, ids){
+            var n = normWerteIds(ids);
+            pArr.forEach(function(p){ if(p.id===pId) p.werteIds = n; });
+            persist(); emit(); return Promise.resolve();
+          },
+          getWertAudio:function(id){ return Promise.resolve(waMap[id] ? { data:waMap[id].data||"", hash:waMap[id].hash||"", voiceId:waMap[id].voiceId||"", updatedAt:waMap[id].updatedAt||null } : null); },
+          saveWertAudio:function(id, obj){ waMap[id] = { data:obj.data, hash:obj.hash, voiceId:obj.voiceId, updatedAt:Date.now() }; persistWertAudio(); wArr.forEach(function(w){ if(w.id===id) w.audioHash=obj.hash; }); persist(); emit(); return Promise.resolve(); }
         };
       }
 
@@ -841,20 +1078,30 @@
             var db  = fs.getFirestore(app);
             var pRef = fs.collection(db, COL_P);
             var cRef = fs.collection(db, COL_C);
+            var wRef = fs.collection(db, COL_W);
             var pQ = fs.query(pRef, fs.orderBy("createdAt", "asc"));
             var cQ = fs.query(cRef, fs.orderBy("createdAt", "asc"));
-            var latestP = [], latestC = [], cLoaded = false;
-            function docP(d){ var x=d.data(); return { id:d.id, text:(x.text||""), categoryId:(x.categoryId||null), audioHash:(x.audioHash||null) }; }
+            var wQ = fs.query(wRef, fs.orderBy("reihenfolge", "asc"));
+            var latestP = [], latestC = [], latestW = [], cLoaded = false, wLoaded = false;
+            // werteIds fehlt bei allem, was vor diesem Feature angelegt wurde -> leeres Array.
+            function docP(d){ var x=d.data(); return { id:d.id, text:(x.text||""), categoryId:(x.categoryId||null), audioHash:(x.audioHash||null), werteIds:normWerteIds(x.werteIds) }; }
             function docC(d){ var x=d.data(); return { id:d.id, name:(x.name||"") }; }
+            function docW(d){ var x=d.data(); return { id:d.id, name:(x.name||""), beschreibung:(x.beschreibung||""), reihenfolge:(typeof x.reihenfolge==="number"?x.reihenfolge:0), audioHash:(x.audioHash||null) }; }
+            function nextOrder(){ var m=0; latestW.forEach(function(w){ if(w.reihenfolge>m) m=w.reihenfolge; }); return m+1; }
             return {
               mode:"cloud",
               subscribe:function(cb){
-                function emit(){ cb({ principles:latestP.slice(), categories:latestC.slice(), categoriesLoaded:cLoaded }); }
+                function emit(){ cb({ principles:latestP.slice(), categories:latestC.slice(), werte:latestW.slice(), categoriesLoaded:cLoaded, werteLoaded:wLoaded }); }
                 function err(e){ console.error(e); showToast("Synchronisierung gestört"); }
                 fs.onSnapshot(pQ, function(s){ latestP = s.docs.map(docP); emit(); }, err);
                 fs.onSnapshot(cQ, function(s){ latestC = s.docs.map(docC); cLoaded = true; emit(); }, err);
+                // Eigener Listener für Werte. Schlägt er fehl (z. B. weil die
+                // Sicherheitsregeln die neue Collection noch nicht freigeben),
+                // bleibt die App voll funktionsfähig – nur ohne Werte.
+                fs.onSnapshot(wQ, function(s){ latestW = s.docs.map(docW); wLoaded = true; emit(); },
+                  function(e){ console.error(e); wLoaded = true; emit(); });
               },
-              addPrinciple:function(text, catId){ return fs.addDoc(pRef, { text:text, categoryId:catId||null, createdAt:fs.serverTimestamp() }); },
+              addPrinciple:function(text, catId, werteIds){ return fs.addDoc(pRef, { text:text, categoryId:catId||null, werteIds:normWerteIds(werteIds), createdAt:fs.serverTimestamp() }); },
               updatePrinciple:function(id, text){ return fs.updateDoc(fs.doc(db, COL_P, id), { text:text }); },
               movePrinciple:function(id, catId){ return fs.updateDoc(fs.doc(db, COL_P, id), { categoryId:catId||null }); },
               removePrinciple:function(id){ return fs.deleteDoc(fs.doc(db, COL_P, id)); },
@@ -896,7 +1143,47 @@
                   if(snap.exists()){ var x = snap.data(); if(x && x.voiceId) cb(x.voiceId); }
                 }, function(e){ console.error(e); });
               },
-              saveVoiceId:function(v){ return fs.setDoc(fs.doc(db, COL_S, "audio"), { voiceId: v }, { merge: true }); }
+              saveVoiceId:function(v){ return fs.setDoc(fs.doc(db, COL_S, "audio"), { voiceId: v }, { merge: true }); },
+
+              /* ---- Werte ---- */
+              addWert:function(name, beschreibung){
+                return fs.addDoc(wRef, { name:name, beschreibung:beschreibung||"", reihenfolge:nextOrder(), createdAt:fs.serverTimestamp() });
+              },
+              updateWert:function(id, name, beschreibung){
+                return fs.updateDoc(fs.doc(db, COL_W, id), { name:name, beschreibung:beschreibung||"" });
+              },
+              removeWert:function(id){
+                // Erst die Verknüpfungen aus allen Prinzipien lösen, dann den Wert selbst
+                // löschen. arrayRemove fasst nur das eine Feld an – Text, Kategorie und
+                // Audio des Prinzips bleiben unberührt.
+                var chain = Promise.resolve();
+                latestP.forEach(function(p){
+                  if((p.werteIds||[]).indexOf(id) === -1) return;
+                  chain = chain.then(function(){
+                    return fs.updateDoc(fs.doc(db, COL_P, p.id), { werteIds: fs.arrayRemove(id) });
+                  });
+                });
+                return chain
+                  .then(function(){ return fs.deleteDoc(fs.doc(db, COL_WA, id)).catch(function(){}); })
+                  .then(function(){ return fs.deleteDoc(fs.doc(db, COL_W, id)); });
+              },
+              setPrinzipWerte:function(pId, ids){
+                return fs.updateDoc(fs.doc(db, COL_P, pId), { werteIds: normWerteIds(ids) });
+              },
+              getWertAudio:function(id){
+                return fs.getDoc(fs.doc(db, COL_WA, id)).then(function(snap){
+                  if(!snap.exists()) return null;
+                  var x = snap.data();
+                  return { data:(x.data||""), hash:(x.hash||""), voiceId:(x.voiceId||""), updatedAt:(x.updatedAt||null) };
+                });
+              },
+              saveWertAudio:function(id, obj){
+                return fs.setDoc(fs.doc(db, COL_WA, id), {
+                  data:obj.data, hash:obj.hash, voiceId:obj.voiceId, updatedAt:fs.serverTimestamp()
+                }).then(function(){
+                  return fs.updateDoc(fs.doc(db, COL_W, id), { audioHash:obj.hash });
+                });
+              }
             };
           });
         });
@@ -912,6 +1199,27 @@
 
       /* ---------- kleine Helfer ---------- */
       function catById(id){ for(var i=0;i<categories.length;i++){ if(categories[i].id===id) return categories[i]; } return null; }
+      function wertById(id){ for(var i=0;i<werte.length;i++){ if(werte[i].id===id) return werte[i]; } return null; }
+
+      // Werte eines Prinzips – in der Reihenfolge der Werte-Liste, verwaiste IDs fallen still weg.
+      function werteOf(p){
+        var ids = p.werteIds || [];
+        if(!ids.length) return [];
+        return werte.filter(function(w){ return ids.indexOf(w.id) !== -1; });
+      }
+      // Prinzipien eines Werts – in der Reihenfolge der Prinzipien-Liste.
+      function prinzipienOf(wertId){
+        return principles.filter(function(p){ return (p.werteIds || []).indexOf(wertId) !== -1; });
+      }
+      function linkCount(wertId){ return prinzipienOf(wertId).length; }
+      function showPrinzipien(){ return activeView === "prinzipien" || activeView === "alles"; }
+      function showWerte(){ return activeView === "werte" || activeView === "alles"; }
+      function setView(v){
+        activeView = v;
+        try{ localStorage.setItem(VIEW_KEY, v); }catch(e){}
+        editingId=null; confirmingId=null; wertAdding=false; wertEditId=null; wertConfirmDelId=null; pickerNewFor=null;
+        renderAll();
+      }
       function makeIconBtn(className, svg, label, handler){
         var b=document.createElement("button"); b.type="button"; b.className="icon-btn "+className;
         b.innerHTML=svg; b.setAttribute("aria-label",label); b.title=label; b.addEventListener("click",handler); return b;
@@ -945,9 +1253,12 @@
 
       function isEditingActive(){
         if(editingId !== null || catAdding || catRenameId !== null) return true;
+        if(wertAdding || wertEditId !== null || pickerNewFor !== null) return true;
         var a = document.activeElement;
         if(!a || (a.tagName !== "INPUT" && a.tagName !== "TEXTAREA")) return false;
-        return (listEl && listEl.contains(a)) || (manageEl && manageEl.contains(a));
+        return (listEl && listEl.contains(a)) || (manageEl && manageEl.contains(a)) ||
+               (werteListEl && werteListEl.contains(a)) || (werteToolsEl && werteToolsEl.contains(a)) ||
+               (addPickerEl && addPickerEl.contains(a));
       }
 
       // Vom Live-Listener statt renderAll() aufrufen.
@@ -962,7 +1273,338 @@
       });
 
       /* ---------- Rendern ---------- */
-      function renderAll(){ pendingRender = false; renderTabs(); renderManage(); renderCatSelect(); renderList(); refreshAudioStatuses(); }
+      function renderAll(){
+        pendingRender = false;
+        renderViewSwitch();
+        applyView();
+        renderTabs(); renderManage(); renderCatSelect();
+        renderWertFilter(); renderAddPicker(); renderList();
+        renderWerteTools(); renderWerteList();
+        refreshAudioStatuses();
+      }
+
+      /* ---------- Ansichts-Umschalter ---------- */
+      var VIEWS = [
+        { id:"prinzipien", label:"Prinzipien" },
+        { id:"werte",      label:"Werte" },
+        { id:"alles",      label:"Alles" }
+      ];
+      function renderViewSwitch(){
+        if(!viewSwitchEl) return;
+        viewSwitchEl.innerHTML = "";
+        VIEWS.forEach(function(v){
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = (activeView === v.id) ? "active" : "";
+          b.textContent = v.label;
+          b.setAttribute("role", "tab");
+          b.setAttribute("aria-selected", activeView === v.id ? "true" : "false");
+          b.addEventListener("click", function(){ if(activeView !== v.id) setView(v.id); });
+          viewSwitchEl.appendChild(b);
+        });
+      }
+
+      // Sichtbarkeit der beiden Blöcke + Überschriften (nur in „Alles" nötig).
+      function applyView(){
+        if(viewPrinzEl) viewPrinzEl.style.display = showPrinzipien() ? "" : "none";
+        if(viewWerteEl) viewWerteEl.style.display = showWerte() ? "" : "none";
+        var both = (activeView === "alles");
+        if(headPrinzEl) headPrinzEl.style.display = both ? "" : "none";
+        if(headWerteEl) headWerteEl.style.display = both ? "" : "none";
+      }
+
+      /* ---------- Filter: nach einzelnem Wert ---------- */
+      function renderWertFilter(){
+        if(!wertFilterRow || !wertFilterSel) return;
+        if(!werte.length){ wertFilterRow.style.display = "none"; filterWertId = null; return; }
+        // Ein gelöschter Wert darf den Filter nicht in einem toten Zustand hängen lassen.
+        if(filterWertId && !wertById(filterWertId)) filterWertId = null;
+        wertFilterRow.style.display = "";
+        wertFilterSel.innerHTML = "";
+        var all = document.createElement("option");
+        all.value = ""; all.textContent = "Alle Werte";
+        wertFilterSel.appendChild(all);
+        werte.forEach(function(w){
+          var o = document.createElement("option");
+          o.value = w.id; o.textContent = w.name + " (" + linkCount(w.id) + ")";
+          wertFilterSel.appendChild(o);
+        });
+        wertFilterSel.value = filterWertId || "";
+      }
+      if(wertFilterSel){
+        wertFilterSel.addEventListener("change", function(){
+          filterWertId = wertFilterSel.value || null;
+          editingId = null; confirmingId = null;
+          renderAll();
+        });
+      }
+
+      /* ---------- Werte: Werkzeugleiste (unverknüpft-Filter + Anlegen) ---------- */
+      function renderWerteTools(){
+        if(!werteToolsEl) return;
+        werteToolsEl.innerHTML = "";
+        if(wertAdding){
+          var wrap = document.createElement("div"); wrap.className = "wert-edit-row"; wrap.style.width = "100%";
+          var nameIn = document.createElement("input");
+          nameIn.type = "text"; nameIn.className = "cat-input"; nameIn.id = "wert-input";
+          nameIn.placeholder = "Name des neuen Werts …"; nameIn.maxLength = 60; hardenInput(nameIn);
+          var descIn = document.createElement("textarea");
+          descIn.className = "edit-area"; descIn.style.minHeight = "60px"; descIn.style.marginBottom = "0";
+          descIn.placeholder = "Beschreibung (optional) …"; descIn.setAttribute("aria-label", "Beschreibung des Werts"); hardenInput(descIn);
+          var row = document.createElement("div"); row.className = "edit-controls";
+          row.appendChild(makeTextBtn("Anlegen", "primary", function(){ addWert(nameIn.value, descIn.value); }));
+          row.appendChild(makeTextBtn("Abbrechen", "muted", function(){ wertAdding = false; renderAll(); }));
+          nameIn.addEventListener("keydown", function(e){
+            if(e.key === "Enter"){ e.preventDefault(); addWert(nameIn.value, descIn.value); }
+            else if(e.key === "Escape"){ wertAdding = false; renderAll(); }
+          });
+          wrap.appendChild(nameIn); wrap.appendChild(descIn); wrap.appendChild(row);
+          werteToolsEl.appendChild(wrap);
+          return;
+        }
+        var t = document.createElement("button");
+        t.type = "button";
+        t.className = "filter-toggle" + (onlyUnlinkedWerte ? " on" : "");
+        t.setAttribute("aria-pressed", onlyUnlinkedWerte ? "true" : "false");
+        var box = document.createElement("span"); box.className = "box"; box.textContent = onlyUnlinkedWerte ? "✓" : "";
+        var lab = document.createElement("span"); lab.textContent = "Nur unverknüpfte Werte";
+        t.appendChild(box); t.appendChild(lab);
+        t.addEventListener("click", function(){ onlyUnlinkedWerte = !onlyUnlinkedWerte; renderAll(); });
+        werteToolsEl.appendChild(t);
+
+        var add = document.createElement("button");
+        add.type = "button"; add.className = "filter-toggle";
+        add.textContent = "+ Neuer Wert";
+        add.addEventListener("click", function(){ wertAdding = true; wertEditId = null; wertConfirmDelId = null; renderAll(); focusWertInput(); });
+        werteToolsEl.appendChild(add);
+      }
+      function focusWertInput(){
+        var el = document.getElementById("wert-input");
+        if(el){ el.focus(); if(el.value){ var l = el.value.length; el.setSelectionRange(l, l); } }
+      }
+
+      /* ---------- Werte: Liste ---------- */
+      function renderWerteList(){
+        if(!werteListEl) return;
+        werteListEl.innerHTML = "";
+        if(!showWerte()) return;
+        if(!werte.length){
+          var li = document.createElement("li"); li.className = "empty";
+          li.textContent = "Noch keine Werte. Lege oben deinen ersten an.";
+          werteListEl.appendChild(li); return;
+        }
+        var list = onlyUnlinkedWerte ? werte.filter(function(w){ return linkCount(w.id) === 0; }) : werte;
+        if(!list.length){
+          var li2 = document.createElement("li"); li2.className = "empty";
+          li2.textContent = "Alle Werte sind mit mindestens einem Prinzip verknüpft.";
+          werteListEl.appendChild(li2); return;
+        }
+        list.forEach(function(w){ werteListEl.appendChild(renderWertEntry(w)); });
+      }
+
+      function renderWertEntry(w){
+        var li = document.createElement("li"); li.className = "wert-entry"; li.setAttribute("data-wert-id", w.id);
+
+        if(wertEditId === w.id){ renderWertEditing(li, w); return li; }
+
+        var head = document.createElement("div"); head.className = "wert-head";
+        var main = document.createElement("button");
+        main.type = "button"; main.className = "wert-main";
+        main.setAttribute("aria-expanded", expandedWerte[w.id] ? "true" : "false");
+
+        var nm = document.createElement("div"); nm.className = "wert-name"; nm.textContent = w.name; main.appendChild(nm);
+        if(w.beschreibung){ var ds = document.createElement("div"); ds.className = "wert-desc"; ds.textContent = w.beschreibung; main.appendChild(ds); }
+
+        var n = linkCount(w.id);
+        var cnt = document.createElement("div");
+        cnt.className = "wert-count" + (n === 0 ? " zero" : "");
+        cnt.textContent = (n === 0) ? "Noch kein Prinzip formuliert" : (n === 1 ? "1 Prinzip" : n + " Prinzipien");
+        main.appendChild(cnt);
+
+        main.addEventListener("click", function(){
+          expandedWerte[w.id] = !expandedWerte[w.id];
+          renderAll();
+        });
+        head.appendChild(main);
+
+        var actions = document.createElement("div"); actions.className = "actions";
+        actions.appendChild(makeIconBtn("edit", ICON_EDIT, "Wert bearbeiten", function(){
+          wertEditId = w.id; wertAdding = false; wertConfirmDelId = null; renderAll(); focusWertEdit(w.id);
+        }));
+        actions.appendChild(makeIconBtn("delete", ICON_X, "Wert löschen", function(){
+          wertConfirmDelId = w.id; wertEditId = null; wertAdding = false; renderAll();
+        }));
+        head.appendChild(actions);
+        li.appendChild(head);
+
+        if(wertConfirmDelId === w.id){
+          var controls = document.createElement("div"); controls.className = "confirm-controls"; controls.style.marginTop = "12px";
+          var note = document.createElement("span"); note.className = "confirm-note";
+          note.textContent = n ? ("Wert löschen? Die " + n + " verknüpften Prinzipien bleiben erhalten.") : "Wert wirklich löschen?";
+          controls.appendChild(note);
+          controls.appendChild(makeTextBtn("Löschen", "danger", function(){ deleteWert(w.id); }));
+          controls.appendChild(makeTextBtn("Abbrechen", "muted", function(){ wertConfirmDelId = null; renderAll(); }));
+          li.appendChild(controls);
+        }
+
+        if(expandedWerte[w.id]){
+          var items = prinzipienOf(w.id);
+          var ul = document.createElement("ul"); ul.className = "wert-linked";
+          if(!items.length){
+            var e = document.createElement("li");
+            e.textContent = "Hier fehlt noch ein Prinzip zu diesem Wert.";
+            ul.appendChild(e);
+          } else {
+            items.forEach(function(p){
+              var pi = document.createElement("li");
+              var parts = splitPrinciple(p.text);
+              var st = document.createElement("strong"); st.textContent = parts.title || firstLine(p.text);
+              pi.appendChild(st);
+              if(parts.title && parts.body){ pi.appendChild(document.createTextNode(" – " + parts.body)); }
+              ul.appendChild(pi);
+            });
+          }
+          li.appendChild(ul);
+        }
+        return li;
+      }
+
+      function renderWertEditing(li, w){
+        var wrap = document.createElement("div"); wrap.className = "wert-edit-row";
+        var nameIn = document.createElement("input");
+        nameIn.type = "text"; nameIn.className = "cat-input"; nameIn.value = w.name; nameIn.maxLength = 60;
+        nameIn.setAttribute("aria-label", "Name des Werts"); hardenInput(nameIn);
+        var descIn = document.createElement("textarea");
+        descIn.className = "edit-area"; descIn.style.minHeight = "60px"; descIn.style.marginBottom = "0";
+        descIn.value = w.beschreibung || ""; descIn.placeholder = "Beschreibung (optional) …";
+        descIn.setAttribute("aria-label", "Beschreibung des Werts"); hardenInput(descIn);
+        wrap.appendChild(nameIn); wrap.appendChild(descIn);
+
+        renderWertAudioRow(wrap, w, function(){ return nameIn.value + " " + descIn.value; });
+
+        var controls = document.createElement("div"); controls.className = "edit-controls";
+        controls.appendChild(makeTextBtn("Speichern", "primary", function(){ commitWertEdit(w.id, nameIn.value, descIn.value); }));
+        controls.appendChild(makeTextBtn("Abbrechen", "muted", function(){ wertEditId = null; renderAll(); }));
+        wrap.appendChild(controls);
+        nameIn.addEventListener("keydown", function(e){
+          if(e.key === "Enter"){ e.preventDefault(); commitWertEdit(w.id, nameIn.value, descIn.value); }
+          else if(e.key === "Escape"){ wertEditId = null; renderAll(); }
+        });
+        li.appendChild(wrap);
+      }
+      function focusWertEdit(id){
+        var el = werteListEl.querySelector('[data-wert-id="' + id + '"] .cat-input');
+        if(el){ el.focus(); var l = el.value.length; el.setSelectionRange(l, l); }
+      }
+
+      /* ---------- Wert-Chips unter einem Prinzip ---------- */
+      function renderWertChips(bodyEl, p){
+        var ws = werteOf(p);
+        if(!ws.length) return;
+        var box = document.createElement("div"); box.className = "wert-chips";
+        ws.forEach(function(w){
+          var c = document.createElement("button");
+          c.type = "button"; c.className = "wert-chip"; c.textContent = w.name;
+          c.title = "Nur Prinzipien zu „" + w.name + "“ anzeigen";
+          c.addEventListener("click", function(){
+            filterWertId = w.id;
+            if(activeView === "werte") { activeView = "prinzipien"; try{ localStorage.setItem(VIEW_KEY, activeView); }catch(e){} }
+            editingId = null; confirmingId = null;
+            renderAll();
+            showToast("Gefiltert nach „" + w.name + "“");
+          });
+          box.appendChild(c);
+        });
+        bodyEl.appendChild(box);
+      }
+
+      /* ---------- Mehrfachauswahl von Werten (Anlegen/Bearbeiten) ---------- */
+      // key identifiziert den Dialog ("add" oder die Prinzip-ID), damit das
+      // Inline-Feld "Neuer Wert" nur in genau einem Dialog gleichzeitig offen ist.
+      function renderWertPicker(container, key, getSelected, setSelected){
+        container.innerHTML = "";
+        if(!werte.length && pickerNewFor !== key){
+          // Ohne angelegte Werte nur den Einstieg zeigen – keine leere Chip-Reihe.
+          var lab0 = document.createElement("span"); lab0.className = "wert-picker-label"; lab0.textContent = "Werte";
+          container.appendChild(lab0);
+          var b0 = document.createElement("button");
+          b0.type = "button"; b0.className = "wert-pick new"; b0.textContent = "+ Neuen Wert anlegen";
+          b0.addEventListener("click", function(){ pickerNewFor = key; renderAll(); focusPickerNew(container); });
+          container.appendChild(b0);
+          return;
+        }
+        var lab = document.createElement("span"); lab.className = "wert-picker-label"; lab.textContent = "Werte";
+        container.appendChild(lab);
+
+        var chips = document.createElement("div"); chips.className = "wert-picker-chips";
+        werte.forEach(function(w){
+          var sel = getSelected().indexOf(w.id) !== -1;
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "wert-pick" + (sel ? " on" : "");
+          b.textContent = w.name;
+          b.setAttribute("aria-pressed", sel ? "true" : "false");
+          b.addEventListener("click", function(){
+            var cur = getSelected().slice();
+            var i = cur.indexOf(w.id);
+            if(i === -1) cur.push(w.id); else cur.splice(i, 1);
+            setSelected(cur);
+            renderWertPicker(container, key, getSelected, setSelected);   // nur die Chips neu zeichnen
+          });
+          chips.appendChild(b);
+        });
+        var bn = document.createElement("button");
+        bn.type = "button"; bn.className = "wert-pick new"; bn.textContent = "+ Neuer Wert";
+        bn.addEventListener("click", function(){ pickerNewFor = key; renderAll(); focusPickerNew(container); });
+        chips.appendChild(bn);
+        container.appendChild(chips);
+
+        if(pickerNewFor === key){
+          var row = document.createElement("div"); row.className = "wert-new-row";
+          var inp = document.createElement("input");
+          inp.type = "text"; inp.className = "cat-input picker-new-input";
+          inp.placeholder = "Name des neuen Werts …"; inp.maxLength = 60;
+          inp.setAttribute("aria-label", "Name des neuen Werts"); hardenInput(inp);
+          function create(){
+            var t = (inp.value || "").trim();
+            if(!t){ showToast("Name darf nicht leer sein"); return; }
+            if(!store || !store.addWert){ showToast("Werte sind hier nicht verfügbar"); return; }
+            pickerNewFor = null;
+            var res = store.addWert(t, "");
+            // Lokaler Store liefert die ID sofort; in der Cloud kommt sie über das Promise.
+            Promise.resolve(res).then(function(r){
+              var id = (typeof r === "string") ? r : (r && r.id ? r.id : null);
+              if(id){ var cur = getSelected().slice(); cur.push(id); setSelected(cur); }
+              showToast("Wert „" + t + "“ angelegt");
+              renderAll();
+            }).catch(function(e){ showToast(saveError("Wert", e)); renderAll(); });
+            renderAll();
+          }
+          row.appendChild(inp);
+          row.appendChild(makeTextBtn("Anlegen", "primary", create));
+          row.appendChild(makeTextBtn("Abbrechen", "muted", function(){ pickerNewFor = null; renderAll(); }));
+          inp.addEventListener("keydown", function(e){
+            if(e.key === "Enter"){ e.preventDefault(); create(); }
+            else if(e.key === "Escape"){ pickerNewFor = null; renderAll(); }
+          });
+          container.appendChild(row);
+        }
+      }
+      function focusPickerNew(container){
+        var el = container.querySelector(".picker-new-input");
+        if(el) el.focus();
+      }
+
+      // Wert-Auswahl für das Formular "neues Prinzip".
+      function renderAddPicker(){
+        if(!addPickerEl) return;
+        if(!showPrinzipien()){ addPickerEl.innerHTML = ""; return; }
+        // Bewusst KEIN Filter gegen die bekannten Werte: In der Cloud trifft die ID
+        // eines frisch angelegten Werts u. U. vor dem passenden Snapshot ein. Ein
+        // Filter würde die Auswahl in genau dem Moment still verwerfen. Unbekannte
+        // IDs sind harmlos – werteOf() blendet sie beim Anzeigen ohnehin aus, und
+        // deleteWert() räumt sie beim Löschen eines Werts sauber weg.
+        renderWertPicker(addPickerEl, "add", function(){ return addWerteIds; }, function(v){ addWerteIds = v; });
+      }
 
       function renderTabs(){
         tabsEl.innerHTML="";
@@ -1029,30 +1671,46 @@
         catSelectEl.value = def;
       }
 
+      // Der Wert-Filter greift quer über alle Kategorien; ein Prinzip ohne
+      // passenden Wert fällt heraus, die Kategorie-Gruppierung bleibt bestehen.
+      function passesWertFilter(p){
+        if(!filterWertId) return true;
+        return (p.werteIds || []).indexOf(filterWertId) !== -1;
+      }
+
       function renderList(){
         listEl.innerHTML="";
+        if(!showPrinzipien()) return;
+        var fw = filterWertId ? wertById(filterWertId) : null;
         if(activeCat){
-          var items = principles.filter(function(p){ return p.categoryId===activeCat; });
-          if(items.length===0){ appendEmpty("Noch keine Prinzipien in dieser Kategorie."); return; }
+          var items = principles.filter(function(p){ return p.categoryId===activeCat && passesWertFilter(p); });
+          if(items.length===0){
+            appendEmpty(fw ? ("Kein Prinzip in dieser Kategorie ist mit „" + fw.name + "“ verknüpft.")
+                           : "Noch keine Prinzipien in dieser Kategorie.");
+            return;
+          }
           items.forEach(function(p, i){ listEl.appendChild(renderEntry(p, i+1)); });
           return;
         }
         var any=false, firstGroup=true;
         categories.forEach(function(c){
-          var items = principles.filter(function(p){ return p.categoryId===c.id; });
+          var items = principles.filter(function(p){ return p.categoryId===c.id && passesWertFilter(p); });
           if(items.length){
             any=true;
             appendGroupHead(c.name, firstGroup); firstGroup=false;
             items.forEach(function(p, i){ listEl.appendChild(renderEntry(p, i+1)); });
           }
         });
-        var none = principles.filter(function(p){ return !p.categoryId || !catById(p.categoryId); });
+        var none = principles.filter(function(p){ return (!p.categoryId || !catById(p.categoryId)) && passesWertFilter(p); });
         if(none.length){
           any=true;
           appendGroupHead("Ohne Kategorie", firstGroup); firstGroup=false;
           none.forEach(function(p, i){ listEl.appendChild(renderEntry(p, i+1)); });
         }
-        if(!any){ appendEmpty("Noch keine Prinzipien. Füge dein erstes hinzu."); }
+        if(!any){
+          appendEmpty(fw ? ("Noch kein Prinzip zu „" + fw.name + "“ – hier ist eine Lücke.")
+                         : "Noch keine Prinzipien. Füge dein erstes hinzu.");
+        }
       }
 
       function appendEmpty(text){ var li=document.createElement("li"); li.className="empty"; li.textContent=text; listEl.appendChild(li); }
@@ -1063,8 +1721,8 @@
         var idx=document.createElement("div"); idx.className="idx"; idx.textContent="Prinzip "+number; li.appendChild(idx);
         var bodyEl=document.createElement("div"); bodyEl.className="entry-body"; li.appendChild(bodyEl);
         if(editingId===p.id){ renderEditing(bodyEl, p); }
-        else if(confirmingId===p.id){ renderText(bodyEl, p); renderAudioStatus(bodyEl, p); renderConfirm(bodyEl, p); }
-        else { renderText(bodyEl, p); renderAudioStatus(bodyEl, p); renderActions(li, p); }
+        else if(confirmingId===p.id){ renderText(bodyEl, p); renderWertChips(bodyEl, p); renderAudioStatus(bodyEl, p); renderConfirm(bodyEl, p); }
+        else { renderText(bodyEl, p); renderWertChips(bodyEl, p); renderAudioStatus(bodyEl, p); renderActions(li, p); }
         return li;
       }
 
@@ -1072,7 +1730,7 @@
 
       function renderActions(li, p){
         var actions=document.createElement("div"); actions.className="actions";
-        actions.appendChild(makeIconBtn("edit", ICON_EDIT, "Prinzip bearbeiten", function(){ confirmingId=null; editingId=p.id; renderAll(); focusEdit(p.id); }));
+        actions.appendChild(makeIconBtn("edit", ICON_EDIT, "Prinzip bearbeiten", function(){ confirmingId=null; editingId=p.id; draftWerteIds=null; pickerNewFor=null; renderAll(); focusEdit(p.id); }));
         actions.appendChild(makeIconBtn("delete", ICON_X, "Prinzip löschen", function(){ editingId=null; confirmingId=p.id; renderAll(); }));
         li.appendChild(actions);
       }
@@ -1096,14 +1754,20 @@
           sel.value = (p.categoryId && catById(p.categoryId)) ? p.categoryId : categories[0].id;
           row.appendChild(sel); bodyEl.appendChild(row);
         }
+        // Mehrfachauswahl der Werte. draftWerteIds hält die Auswahl, solange der
+        // Dialog offen ist – gespeichert wird erst beim Klick auf "Speichern".
+        if(draftWerteIds === null) draftWerteIds = (p.werteIds || []).slice();
+        var picker=document.createElement("div"); picker.className="wert-picker"; bodyEl.appendChild(picker);
+        renderWertPicker(picker, p.id, function(){ return draftWerteIds; }, function(v){ draftWerteIds = v; });
+
         renderEditAudioRow(bodyEl, p, function(){ return ta.value; });
         var controls=document.createElement("div"); controls.className="edit-controls";
-        controls.appendChild(makeTextBtn("Speichern","primary",function(){ commitEdit(p.id, ta.value, sel?sel.value:p.categoryId); }));
-        controls.appendChild(makeTextBtn("Abbrechen","muted",function(){ editingId=null; renderAll(); }));
+        controls.appendChild(makeTextBtn("Speichern","primary",function(){ commitEdit(p.id, ta.value, sel?sel.value:p.categoryId, draftWerteIds); }));
+        controls.appendChild(makeTextBtn("Abbrechen","muted",function(){ editingId=null; draftWerteIds=null; pickerNewFor=null; renderAll(); }));
         bodyEl.appendChild(controls);
         ta.addEventListener("keydown",function(e){
-          if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){ e.preventDefault(); commitEdit(p.id, ta.value, sel?sel.value:p.categoryId); }
-          else if(e.key==="Escape"){ editingId=null; renderAll(); }
+          if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){ e.preventDefault(); commitEdit(p.id, ta.value, sel?sel.value:p.categoryId, draftWerteIds); }
+          else if(e.key==="Escape"){ editingId=null; draftWerteIds=null; pickerNewFor=null; renderAll(); }
         });
       }
 
@@ -1157,19 +1821,24 @@
       function addPrinciple(text){
         var t=text.trim(); if(!t || !store) return false;
         var catId = categories.length ? catSelectEl.value : null;
-        Promise.resolve(store.addPrinciple(t, catId))
+        var ids = addWerteIds.slice();
+        Promise.resolve(store.addPrinciple(t, catId, ids))
           .then(function(){ showToast("Prinzip hinzugefügt"); })
           .catch(function(e){ showToast(saveError("Prinzip", e)); });
+        addWerteIds = [];   // Auswahl gilt nur für dieses eine neue Prinzip
+        renderAddPicker();
         return true;
       }
-      function commitEdit(id, newText, catId){
+      function commitEdit(id, newText, catId, werteIds){
         var t=newText.trim(); if(!t){ showToast("Text darf nicht leer sein"); return; }
-        editingId=null;
-        principles.forEach(function(p){ if(p.id===id){ p.text=t; p.categoryId=catId||null; } });
+        var ids = normWerteIds(werteIds);
+        editingId=null; draftWerteIds=null; pickerNewFor=null;
+        principles.forEach(function(p){ if(p.id===id){ p.text=t; p.categoryId=catId||null; p.werteIds=ids; } });
         renderAll();
         if(store){
           Promise.resolve(store.updatePrinciple(id, t))
             .then(function(){ if(store.movePrinciple) return store.movePrinciple(id, catId||null); })
+            .then(function(){ if(store.setPrinzipWerte) return store.setPrinzipWerte(id, ids); })
             .then(function(){ showToast("Prinzip aktualisiert"); })
             .catch(function(e){ showToast(saveError("Prinzip", e)); });
         }
@@ -1218,6 +1887,49 @@
           Promise.resolve(store.removeCategory(id))
             .then(function(){ showToast("Kategorie gelöscht"); })
             .catch(function(e){ showToast(saveError("Kategorie", e)); });
+        }
+      }
+
+      /* ---------- Aktionen: Werte ---------- */
+      function addWert(name, beschreibung){
+        var t=(name||"").trim(); if(!t){ showToast("Name darf nicht leer sein"); return; }
+        if(!store || !store.addWert){ showToast("Werte sind hier nicht verfügbar"); return; }
+        var d=(beschreibung||"").trim();
+        var res = store.addWert(t, d);
+        wertAdding=false;
+        renderAll();
+        Promise.resolve(res)
+          .then(function(){ showToast("Wert hinzugefügt"); })
+          .catch(function(e){ showToast(saveError("Wert", e)); });
+      }
+      function commitWertEdit(id, name, beschreibung){
+        var t=(name||"").trim(); if(!t){ showToast("Name darf nicht leer sein"); return; }
+        var d=(beschreibung||"").trim();
+        wertEditId=null;
+        werte.forEach(function(w){ if(w.id===id){ w.name=t; w.beschreibung=d; } });
+        renderAll();
+        if(store && store.updateWert){
+          Promise.resolve(store.updateWert(id, t, d))
+            .then(function(){ showToast("Wert aktualisiert"); })
+            .catch(function(e){ showToast(saveError("Wert", e)); });
+        }
+      }
+      function deleteWert(id){
+        wertConfirmDelId=null;
+        // Nur die Verknüpfungen fallen weg – die Prinzipien selbst bleiben stehen.
+        werte = werte.filter(function(w){ return w.id!==id; });
+        principles.forEach(function(p){
+          if(p.werteIds) p.werteIds = p.werteIds.filter(function(x){ return x!==id; });
+        });
+        if(filterWertId===id) filterWertId=null;
+        delete expandedWerte[id];
+        addWerteIds = addWerteIds.filter(function(x){ return x!==id; });
+        if(draftWerteIds) draftWerteIds = draftWerteIds.filter(function(x){ return x!==id; });
+        renderAll();
+        if(store && store.removeWert){
+          Promise.resolve(store.removeWert(id))
+            .then(function(){ showToast("Wert gelöscht – Prinzipien bleiben erhalten"); })
+            .catch(function(e){ showToast(saveError("Wert", e)); });
         }
       }
 
@@ -1315,39 +2027,91 @@
         return "Audio fehlgeschlagen: " + m;
       }
 
-      // Ein Prinzip vertonen und speichern (Firestore + IndexedDB-Cache).
-      function generateAudio(p, voiceId){
-        var text = p.text;
-        return hashText(text).then(function(h){
-          return elevenTTS(shapeSpoken(text), voiceId).then(function(buf){
+      // Ein Item (Prinzip oder Wert) vertonen und speichern (Firestore + IndexedDB-Cache).
+      function generateItemAudio(it, voiceId){
+        return computeItemHash(it).then(function(h){
+          return elevenTTS(it.spoken, voiceId).then(function(buf){
             var b64 = abToBase64(buf);
             if(b64.length > AUDIO_MAX_B64){ throw new Error("SIZE:" + b64.length); }
-            return store.saveAudio(p.id, { data: b64, hash: h, voiceId: voiceId }).then(function(){
-              p.audioHash = h;
-              hashCache[p.id] = { text: text, hash: h };
-              return idbSet(p.id, { hash: h, blob: base64ToBlob(b64, "audio/mpeg") }).catch(function(){});
+            return itemSaveAudio(it, { data: b64, hash: h, voiceId: voiceId }).then(function(){
+              it.ref.audioHash = h;
+              return idbSet(it.key, { hash: h, blob: base64ToBlob(b64, "audio/mpeg") }).catch(function(){});
             });
           });
         });
       }
+      function generateAudio(p, voiceId){ return generateItemAudio(itemFromPrinzip(p), voiceId); }
 
-      /* ---------- Hash-Cache + dezente Statusanzeige pro Prinzip ---------- */
-      var hashCache = {};   // id -> {text, hash}
-      function computeHash(p){
-        var c = hashCache[p.id];
-        if(c && c.text === p.text) return Promise.resolve(c.hash);
-        return hashText(p.text).then(function(h){ hashCache[p.id] = { text: p.text, hash: h }; return h; });
+      /* ============================================================
+         ITEM-ABSTRAKTION für Wiedergabe und Audio-Erzeugung
+         Ein "Item" ist entweder ein Prinzip oder ein Wert. Beide haben
+         einen gesprochenen Text, einen Audio-Hash und ein Audio-Dokument;
+         nur die Collection und der Cache-Schlüssel unterscheiden sich.
+         Damit funktionieren Vorlesen, Vorab-Laden und Sammelaktion für
+         beide Sorten mit demselben Code.
+         ============================================================ */
+      // WICHTIG – Abwärtskompatibilität: Der Audio-Hash eines Prinzips wird seit
+      // jeher über den ROHTEXT gebildet (nicht über den gesprochenen Text), auch
+      // wenn an ElevenLabs shapeSpoken() geht. Das bleibt genau so. Würde hier auf
+      // den gesprochenen Text umgestellt, gälte jedes vorhandene Audio schlagartig
+      // als veraltet und müsste auf eigene Kosten neu erzeugt werden.
+      function itemFromPrinzip(p){
+        return { kind:"prinzip", id:p.id, key:p.id, ref:p, text:p.text, spoken:shapeSpoken(p.text), hashInput:p.text };
       }
+      // Der Wert wird als Auftakt eines Blocks gesprochen: Name, optional die
+      // Beschreibung, dann die Überleitung zu seinen Prinzipien.
+      function wertSpokenText(w, withLeadIn){
+        var s = (w.name || "").trim();
+        if(s && !/[.!?…:]$/.test(s)) s += ".";
+        if(w.beschreibung && w.beschreibung.trim()){
+          var d = w.beschreibung.trim();
+          s += " " + d;
+          if(!/[.!?…:]$/.test(d)) s += ".";
+        }
+        if(withLeadIn) s += " Dazu:";
+        return s;
+      }
+      // Werte sind neu, hier gibt es keinen Bestand – daher direkt der saubere Weg:
+      // gehasht wird der gesprochene Text. Der Auftakt "Dazu:" gehört zum Block-Modus
+      // und geht bewusst in den Hash ein, damit beide Varianten getrennte Audios haben.
+      function itemFromWert(w, withLeadIn){
+        var sp = wertSpokenText(w, withLeadIn);
+        return { kind:"wert", id:w.id, key:"w:" + w.id + (withLeadIn ? ":b" : ""), ref:w, text:w.name, spoken:sp, hashInput:sp };
+      }
+      function itemStoredHash(it){ return it.ref.audioHash || null; }
+      function itemGetAudio(it){
+        if(it.kind === "wert") return (store && store.getWertAudio) ? store.getWertAudio(it.id) : Promise.resolve(null);
+        return (store && store.getAudio) ? store.getAudio(it.id) : Promise.resolve(null);
+      }
+      function itemSaveAudio(it, obj){
+        if(it.kind === "wert") return store.saveWertAudio(it.id, obj);
+        return store.saveAudio(it.id, obj);
+      }
+      function itemLabel(it){ return it.kind === "wert" ? ("Wert: " + it.ref.name) : firstLine(it.ref.text); }
+
+      /* ---------- Hash-Cache + dezente Statusanzeige ---------- */
+      // Schlüssel ist der Cache-Key des Items, damit sich Prinzip- und
+      // Wert-IDs nicht in die Quere kommen. Gehasht wird IMMER der
+      // gesprochene Text – so gilt ein Audio genau dann als aktuell,
+      // wenn es zu dem passt, was tatsächlich vorgelesen wird.
+      var hashCache = {};   // key -> {text, hash}
+      function computeItemHash(it){
+        var c = hashCache[it.key];
+        if(c && c.text === it.hashInput) return Promise.resolve(c.hash);
+        return hashText(it.hashInput).then(function(h){ hashCache[it.key] = { text: it.hashInput, hash: h }; return h; });
+      }
+      function computeHash(p){ return computeItemHash(itemFromPrinzip(p)); }
       function statusFrom(p, h){
         if(!p.audioHash) return { cls: "none", label: "Kein Audio" };
         return (h === p.audioHash) ? { cls: "ok", label: "Audio aktuell" } : { cls: "stale", label: "Audio veraltet" };
       }
-      function initialStatus(p){
-        if(!p.audioHash) return { cls: "none", label: "Kein Audio" };
-        var c = hashCache[p.id];
-        if(c && c.text === p.text) return statusFrom(p, c.hash);
+      function initialItemStatus(it){
+        if(!itemStoredHash(it)) return { cls: "none", label: "Kein Audio" };
+        var c = hashCache[it.key];
+        if(c && c.text === it.hashInput) return statusFrom(it.ref, c.hash);
         return { cls: "pending", label: "Audio …" };
       }
+      function initialStatus(p){ return initialItemStatus(itemFromPrinzip(p)); }
       function renderAudioStatus(bodyEl, p){
         var s = document.createElement("div"); s.className = "audio-status";
         var st = initialStatus(p); s.classList.add(st.cls); s.textContent = st.label;
@@ -1363,6 +2127,69 @@
             el.className = "audio-status " + st.cls; el.textContent = st.label;
           }).catch(function(){});
         });
+      }
+
+      /* ---------- Wiedergabe-Auswahl (welche Items vorgelesen werden) ---------- */
+      var PLAY_KEY = "prinzipien-play-mode";
+      var PLAY_MODES = [
+        { id:"prinzipien", name:"Nur Prinzipien", sub:"Wie bisher: alle Prinzipien nach Kategorie geordnet." },
+        { id:"werte",      name:"Nur Werte",      sub:"Liest nur die Werte mit ihrer Beschreibung vor." },
+        { id:"block",      name:"Wert + zugehörige Prinzipien", sub:"Je Wert ein Block: erst der Wert, dann seine Prinzipien. Werte ohne Prinzip werden übersprungen." }
+      ];
+      var playMode = "prinzipien";
+      try{ var pmSaved = localStorage.getItem(PLAY_KEY); if(pmSaved && PLAY_MODES.some(function(m){ return m.id===pmSaved; })) playMode = pmSaved; }catch(e){}
+      function setPlayMode(v){
+        playMode = v;
+        try{ localStorage.setItem(PLAY_KEY, v); }catch(e){}
+        renderPlayModes();
+      }
+      var playModeListEl = document.getElementById("play-mode-list");
+      function renderPlayModes(){
+        if(!playModeListEl) return;
+        playModeListEl.innerHTML = "";
+        PLAY_MODES.forEach(function(m){
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "mode-opt" + (playMode === m.id ? " on" : "");
+          b.setAttribute("role", "radio");
+          b.setAttribute("aria-checked", playMode === m.id ? "true" : "false");
+          var dot = document.createElement("span"); dot.className = "dot"; b.appendChild(dot);
+          var txt = document.createElement("span"); txt.className = "mode-txt";
+          var nm = document.createElement("span"); nm.className = "mode-name"; nm.textContent = m.name; txt.appendChild(nm);
+          var sb = document.createElement("span"); sb.className = "mode-sub"; sb.textContent = m.sub; txt.appendChild(sb);
+          b.appendChild(txt);
+          b.addEventListener("click", function(){ if(playMode !== m.id) setPlayMode(m.id); });
+          playModeListEl.appendChild(b);
+        });
+      }
+      renderPlayModes();
+
+      // "Audio erstellen"-Zeile beim Bearbeiten eines Werts.
+      function renderWertAudioRow(wrap, w, getDraft){
+        var it = itemFromWert(w, playMode === "block");
+        var row = document.createElement("div"); row.className = "edit-audio-row";
+        var btn = makeTextBtn(w.audioHash ? "Audio neu erstellen" : "Audio erstellen", "primary", function(){
+          // Wie beim Prinzip: erst speichern, dann vertonen – sonst spräche
+          // ElevenLabs den alten Stand und der Hash passte nicht zum Text.
+          var draft = (getDraft() || "").replace(/\s+/g, " ").trim();
+          var saved = ((w.name || "") + " " + (w.beschreibung || "")).replace(/\s+/g, " ").trim();
+          if(draft !== saved){ showToast("Erst speichern, dann Audio erzeugen."); return; }
+          if(!elevenReady()){ showToast("ElevenLabs-Key/Voice-ID fehlt (oben im Script)."); return; }
+          btn.disabled = true; var old = btn.textContent; btn.textContent = "Erzeuge …";
+          generateItemAudio(it, getVoiceId()).then(function(){
+            showToast("Audio erstellt.");
+            btn.textContent = "Audio neu erstellen"; btn.disabled = false;
+            var stEl = row.querySelector(".audio-status");
+            if(stEl){ stEl.className = "audio-status ok"; stEl.textContent = "Audio aktuell"; }
+          }).catch(function(e){
+            showToast(audioErr(e)); btn.textContent = old; btn.disabled = false;
+          });
+        });
+        row.appendChild(btn);
+        var st = document.createElement("div"); st.className = "audio-status";
+        var s0 = initialItemStatus(it); st.classList.add(s0.cls); st.textContent = s0.label;
+        row.appendChild(st);
+        wrap.appendChild(row);
+        computeItemHash(it).then(function(h){ var s = statusFrom(w, h); st.className = "audio-status " + s.cls; st.textContent = s.label; }).catch(function(){});
       }
 
       // "Audio erstellen"-Zeile in der Bearbeiten-Ansicht.
@@ -1514,7 +2341,7 @@
         if(bulkCancelBtn) bulkCancelBtn.style.display = "none";
         if(fails && fails.length && bulkFails){
           bulkFails.style.display = ""; bulkFails.innerHTML = "";
-          fails.forEach(function(f){ var li = document.createElement("li"); li.textContent = firstLine(f.p.text) + " – " + f.msg; bulkFails.appendChild(li); });
+          fails.forEach(function(f){ var li = document.createElement("li"); li.textContent = itemLabel(f.it) + " – " + f.msg; bulkFails.appendChild(li); });
         }
       }
       function startBulk(){
@@ -1525,8 +2352,9 @@
         bulkFails.style.display = "none"; bulkFails.innerHTML = "";
         bulkStatus.className = "settings-status"; bulkStatus.textContent = "Ermittle fehlende/veraltete Audios …";
         var seq = buildFestSequence(), voiceId = getVoiceId(), todo = [], fails = [];
+        if(!seq.length){ bulkStatus.className = "settings-status"; bulkStatus.textContent = "Nichts zu vertonen – die Wiedergabe-Auswahl ergibt aktuell keine Einträge."; finishBulk(fails); return; }
         var chk = Promise.resolve();
-        seq.forEach(function(p){ chk = chk.then(function(){ return computeHash(p).then(function(h){ if(!p.audioHash || p.audioHash !== h){ todo.push(p); } }); }); });
+        seq.forEach(function(it){ chk = chk.then(function(){ return computeItemHash(it).then(function(h){ var s = itemStoredHash(it); if(!s || s !== h){ todo.push(it); } }); }); });
         chk.then(function(){
           if(!todo.length){ bulkStatus.className = "settings-status ok"; bulkStatus.textContent = "Alles aktuell – nichts zu tun."; finishBulk(fails); return; }
           var i = 0;
@@ -1538,8 +2366,8 @@
               finishBulk(fails); return;
             }
             bulkStatus.textContent = "Erzeuge " + (i + 1) + " von " + todo.length + " …";
-            generateAudio(todo[i], voiceId).then(function(){ i++; refreshAudioStatuses(); next(); })
-              .catch(function(e){ fails.push({ p: todo[i], msg: audioErr(e) }); i++; next(); });
+            generateItemAudio(todo[i], voiceId).then(function(){ i++; refreshAudioStatuses(); next(); })
+              .catch(function(e){ fails.push({ it: todo[i], msg: audioErr(e) }); i++; next(); });
           })();
         }).catch(function(e){ bulkStatus.className = "settings-status err"; bulkStatus.textContent = audioErr(e); finishBulk(fails); });
       }
@@ -1649,13 +2477,46 @@
       }
 
       // Reihenfolge exakt wie in der „Alle"-Ansicht: nach Kategorie gruppiert, dann „Ohne Kategorie".
-      function buildFestSequence(){
+      function principlesInOrder(){
         var seq = [];
         categories.forEach(function(c){
           principles.forEach(function(p){ if(p.categoryId === c.id) seq.push(p); });
         });
         principles.forEach(function(p){ if(!p.categoryId || !catById(p.categoryId)) seq.push(p); });
         return seq;
+      }
+
+      var ORDINALS = ["Erstens","Zweitens","Drittens","Viertens","Fünftens","Sechstens","Siebtens","Achtens","Neuntens","Zehntens","Elftens","Zwölftens"];
+      function ordinalLabel(i){ return ORDINALS[i] || ((i + 1) + "."); }
+
+      /* Die abzuspielende Folge – abhängig von der Wiedergabe-Auswahl.
+         Liefert Items (siehe Item-Abstraktion), nicht mehr rohe Prinzipien. */
+      function buildFestSequence(){
+        if(playMode === "werte"){
+          return werte.map(function(w){ return itemFromWert(w, false); });
+        }
+        if(playMode === "block"){
+          var seq = [], used = {};
+          werte.forEach(function(w){
+            var items = prinzipienOf(w.id);
+            if(!items.length) return;            // Wert ohne Prinzip: nichts vorzulesen
+            seq.push(itemFromWert(w, true));
+            items.forEach(function(p, i){
+              var it = itemFromPrinzip(p);
+              it.ordinal = ordinalLabel(i);      // "Erstens", "Zweitens" … nur als Beschriftung
+              seq.push(it);
+              used[p.id] = 1;
+            });
+          });
+          // Prinzipien ohne Wert dürfen nicht still unter den Tisch fallen –
+          // sie hängen als eigener Block hinten dran.
+          var rest = principlesInOrder().filter(function(p){ return !used[p.id]; });
+          if(rest.length){
+            rest.forEach(function(p){ var it = itemFromPrinzip(p); it.restBlock = true; seq.push(it); });
+          }
+          return seq;
+        }
+        return principlesInOrder().map(itemFromPrinzip);
       }
 
       function festStopKeepAlive(){ if(festKeepAlive){ clearInterval(festKeepAlive); festKeepAlive = null; } }
@@ -1681,14 +2542,29 @@
         if(hasTTS){ try{ window.speechSynthesis.cancel(); }catch(e){} }
       }
 
-      function festRenderCard(p, idx){
-        festProgress.textContent = "Prinzip " + (idx+1) + " von " + festSeq.length;
-        var parts = splitPrinciple(p.text);
-        var inner = document.createElement("div"); inner.className = "festigen-inner";
-        if(parts.title){
-          var t = document.createElement("div"); t.className = "festigen-title"; t.textContent = parts.title; inner.appendChild(t);
+      function festRenderCard(it, idx){
+        festProgress.textContent = (it.kind === "wert" ? "Wert " : "Prinzip ") + (idx+1) + " von " + festSeq.length;
+        var inner = document.createElement("div"); inner.className = "festigen-inner" + (it.kind === "wert" ? " is-wert" : "");
+
+        if(it.kind === "wert"){
+          var k = document.createElement("div"); k.className = "festigen-kind"; k.textContent = "Wert"; inner.appendChild(k);
+          var wt = document.createElement("div"); wt.className = "festigen-title"; wt.textContent = it.ref.name; inner.appendChild(wt);
+          if(it.ref.beschreibung){
+            var wb = document.createElement("div"); wb.className = "festigen-body"; wb.textContent = it.ref.beschreibung; inner.appendChild(wb);
+          }
+        } else {
+          // Im Block-Modus zeigt die Karte, das wievielte Prinzip zum Wert das ist.
+          if(it.ordinal){
+            var o = document.createElement("div"); o.className = "festigen-kind"; o.textContent = it.ordinal; inner.appendChild(o);
+          } else if(it.restBlock){
+            var r = document.createElement("div"); r.className = "festigen-kind"; r.textContent = "Ohne Wert"; inner.appendChild(r);
+          }
+          var parts = splitPrinciple(it.ref.text);
+          if(parts.title){
+            var t = document.createElement("div"); t.className = "festigen-title"; t.textContent = parts.title; inner.appendChild(t);
+          }
+          var b = document.createElement("div"); b.className = "festigen-body"; b.textContent = parts.body || parts.title || it.ref.text; inner.appendChild(b);
         }
-        var b = document.createElement("div"); b.className = "festigen-body"; b.textContent = parts.body || parts.title || p.text; inner.appendChild(b);
         festCard.innerHTML = "";
         festCard.appendChild(inner); // frisch eingefügter Knoten -> Fade-in-Animation läuft automatisch
       }
@@ -1738,24 +2614,24 @@
       function festMarkNote(){
         var inner = festCard.querySelector(".festigen-inner");
         if(!inner || inner.querySelector(".festigen-note")) return;
-        var p = festSeq[festIdx];
+        var it = festSeq[festIdx];
         var note = document.createElement("div"); note.className = "festigen-note";
-        note.textContent = (p && p.audioHash) ? "Audio veraltet – Vorlesen per Systemstimme" : "Kein Audio – Vorlesen per Systemstimme";
+        note.textContent = (it && itemStoredHash(it)) ? "Audio veraltet – Vorlesen per Systemstimme" : "Kein Audio – Vorlesen per Systemstimme";
         inner.insertBefore(note, inner.firstChild);
       }
 
       // Auf die Web Speech API zurückfallen (bestehender Code bleibt Fallback).
-      function festFallbackToSpeech(p){
+      function festFallbackToSpeech(it){
         festMarkNote();
-        if(hasTTS){ festSpeakText(p.text, false); }
-        else { festFallback = setTimeout(festAdvance, festFallbackMs(p.text)); }
+        if(hasTTS){ festSpeakText(it.spoken, false); }
+        else { festFallback = setTimeout(festAdvance, festFallbackMs(it.spoken)); }
       }
 
-      // Aktuelles Prinzip vertonen: MP3 wenn aktuell vorhanden, sonst Sprachausgabe.
+      // Aktuelles Item vertonen: MP3 wenn aktuell vorhanden, sonst Sprachausgabe.
       function festSpeakCurrent(){
         if(!festActive) return;
-        var p = festSeq[festIdx];
-        festRenderCard(p, festIdx);
+        var it = festSeq[festIdx];
+        festRenderCard(it, festIdx);
         festNavShow(true); festUpdateNav();
 
         // Alte Handler lösen (ohne aktives cancel, um den cancel-dann-speak-Quirk zu umgehen).
@@ -1763,26 +2639,26 @@
         festClearTimers();
         festStopAudioEl();
 
-        var clip = festClips[p.id], h = festHashes[p.id];
+        var clip = festClips[it.key], h = festHashes[it.key];
         if(clip && clip.url && clip.hash === h && festAudio){
           // Aktuelle MP3 abspielen, danach automatisch weiter.
           festAudio.onended = function(){ if(festActive) festAdvance(); };
-          festAudio.onerror = function(){ if(festActive) festFallbackToSpeech(p); };
+          festAudio.onerror = function(){ if(festActive) festFallbackToSpeech(it); };
           try{
             festAudio.src = clip.url;
             var pr = festAudio.play();
-            if(pr && pr.catch){ pr.catch(function(){ if(festActive) festFallbackToSpeech(p); }); }
-          }catch(e){ festFallbackToSpeech(p); }
+            if(pr && pr.catch){ pr.catch(function(){ if(festActive) festFallbackToSpeech(it); }); }
+          }catch(e){ festFallbackToSpeech(it); }
         } else {
           // Keine oder veraltete MP3 -> Fallback.
-          festFallbackToSpeech(p);
+          festFallbackToSpeech(it);
         }
       }
 
-      // Text sprechen. isRetry=true -> ohne explizite Stimme (Browser-Standard),
-      // falls die gewählte (evtl. Netz-)Stimme fehlschlägt.
+      // Bereits fertig aufbereiteten Text sprechen. isRetry=true -> ohne explizite
+      // Stimme (Browser-Standard), falls die gewählte (evtl. Netz-)Stimme fehlschlägt.
       function festSpeakText(text, isRetry){
-        var u = new window.SpeechSynthesisUtterance(shapeSpoken(text));
+        var u = new window.SpeechSynthesisUtterance(text);
         u.lang = "de-DE";
         if(!isRetry){
           if(!festVoiceResolved) resolveBestVoice();
@@ -1852,23 +2728,23 @@
         var total = festSeq.length, done = 0;
         function tick(){ var n = document.getElementById("fest-load-note"); if(n){ n.textContent = "Audios werden geladen … (" + done + "/" + total + ")"; } }
         var chain = Promise.resolve();
-        festSeq.forEach(function(p){
+        festSeq.forEach(function(it){
           chain = chain.then(function(){
             if(!festActive) return;
-            return computeHash(p).then(function(h){
-              festHashes[p.id] = h;
-              if(!(p.audioHash && p.audioHash === h)){ done++; tick(); return; }   // kein aktuelles Audio -> später TTS
-              return idbGet(p.id).catch(function(){ return null; }).then(function(cached){
+            return computeItemHash(it).then(function(h){
+              festHashes[it.key] = h;
+              var stored = itemStoredHash(it);
+              if(!(stored && stored === h)){ done++; tick(); return; }   // kein aktuelles Audio -> später TTS
+              return idbGet(it.key).catch(function(){ return null; }).then(function(cached){
                 if(cached && cached.hash === h && cached.blob){
-                  festClips[p.id] = { hash: h, url: URL.createObjectURL(cached.blob) };
+                  festClips[it.key] = { hash: h, url: URL.createObjectURL(cached.blob) };
                   return;
                 }
-                if(!(store && store.getAudio)){ return; }
-                return store.getAudio(p.id).then(function(a){
+                return itemGetAudio(it).then(function(a){
                   if(a && a.data && a.hash === h){
                     var blob = base64ToBlob(a.data, "audio/mpeg");
-                    festClips[p.id] = { hash: h, url: URL.createObjectURL(blob) };
-                    return idbSet(p.id, { hash: h, blob: blob }).catch(function(){});
+                    festClips[it.key] = { hash: h, url: URL.createObjectURL(blob) };
+                    return idbSet(it.key, { hash: h, blob: blob }).catch(function(){});
                   }
                 }).catch(function(e){ console.error(e); });
               }).then(function(){ done++; tick(); });
@@ -1888,7 +2764,12 @@
       function festStart(){
         if(festActive) return;
         festSeq = buildFestSequence();
-        if(!festSeq.length){ showToast("Keine Prinzipien zum Vorlesen."); return; }
+        if(!festSeq.length){
+          if(playMode === "werte"){ showToast("Keine Werte zum Vorlesen."); }
+          else if(playMode === "block"){ showToast("Kein Wert hat verknüpfte Prinzipien."); }
+          else { showToast("Keine Prinzipien zum Vorlesen."); }
+          return;
+        }
         festActive = true; festIdx = 0;
         document.body.classList.add("festigen-active");
         festScreen.classList.add("active");
@@ -1980,7 +2861,9 @@
         store.subscribe(function(snap){
           principles = snap.principles;
           categories = snap.categories;
+          werte = snap.werte || [];
           if(activeCat && !catById(activeCat)) activeCat=null;
+          if(filterWertId && !wertById(filterWertId)) filterWertId=null;
           scheduleRender();   // nicht renderAll(): kein Neuaufbau während des Tippens
           if(snap.categoriesLoaded) maybeSetup();
           if(window.__appReady) window.__appReady();   // Splash: Daten geladen, App renderbereit
