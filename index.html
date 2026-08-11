@@ -363,6 +363,24 @@
     }
     .festigen-note.loading{ color:var(--paper-text-dim); }
 
+    /* ===== Festigen: Abspielgeschwindigkeit ===== */
+    .festigen-speed{
+      flex-shrink:0; display:flex; justify-content:center; align-items:center; gap:6px;
+      flex-wrap:wrap; padding:0 20px 14px;
+    }
+    .speed-btn{
+      background:var(--ink-bg-raised); border:1px solid var(--hairline); color:var(--paper-text-dim);
+      font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.02em;
+      min-height:38px; min-width:52px; padding:0 12px; border-radius:999px; cursor:pointer;
+      transition:background .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .speed-btn:hover{ border-color:var(--brass-dim); color:var(--paper-text); }
+    .speed-btn.active{ background:var(--brass); border-color:var(--brass); color:#1b1d21; font-weight:600; }
+    @media (max-width:400px){
+      .speed-btn{ min-width:46px; padding:0 9px; font-size:12px; }
+      .festigen-speed{ gap:5px; }
+    }
+
     /* Festigen: dauerhafter dezenter Stummschalter-Hinweis am unteren Rand */
     .festigen-foot{
       flex-shrink:0; text-align:center;
@@ -780,6 +798,7 @@
     <div class="festigen-stage">
       <div class="festigen-card" id="festigen-card" aria-live="polite"></div>
     </div>
+    <div class="festigen-speed" id="festigen-speed" role="group" aria-label="Abspielgeschwindigkeit"></div>
     <div class="festigen-foot">Kein Ton? Stummschalter (seitlich am iPhone) prüfen – er schaltet auch Web-Audio stumm.</div>
   </div>
 
@@ -2386,6 +2405,60 @@
       var festEnd      = document.getElementById("festigen-end");
       var festPrevBtn  = document.getElementById("festigen-prev");
       var festNextBtn  = document.getElementById("festigen-next");
+      var festSpeedEl  = document.getElementById("festigen-speed");
+
+      /* ============================================================
+         ABSPIELGESCHWINDIGKEIT
+         Umschalten wirkt sofort auf das laufende Audio: playbackRate
+         laesst sich waehrend der Wiedergabe setzen, das Element muss
+         dafuer weder pausiert noch neu geladen werden.
+         ============================================================ */
+      var SPEED_KEY = "prinzipien-speed";
+      var SPEEDS = [1, 1.25, 1.5, 1.75, 2];
+      var playSpeed = 1;
+      try{
+        var sSaved = parseFloat(localStorage.getItem(SPEED_KEY));
+        if(SPEEDS.indexOf(sSaved) !== -1) playSpeed = sSaved;
+      }catch(e){}
+
+      // Tempo auf ein Audio-Element anwenden. preservesPitch haelt die Tonhoehe
+      // konstant, sonst klaenge die Stimme bei 2x nach Micky Maus. Safari kennt
+      // die Eigenschaft teils nur mit webkit-Praefix, Firefox mit moz-.
+      function applyRate(el){
+        if(!el) return;
+        try{
+          el.preservesPitch = true;
+          el.webkitPreservesPitch = true;
+          el.mozPreservesPitch = true;
+          // defaultPlaybackRate mitsetzen: manche Browser stellen playbackRate
+          // beim Laden einer neuen Quelle darauf zurueck. So gilt das Tempo auch
+          // fuer den jeweils naechsten Track.
+          el.defaultPlaybackRate = playSpeed;
+          el.playbackRate = playSpeed;
+        }catch(e){}
+      }
+      function speedLabel(v){ return (v === 1 ? "1" : String(v).replace(".", ",")) + "×"; }
+      function setSpeed(v){
+        playSpeed = v;
+        try{ localStorage.setItem(SPEED_KEY, String(v)); }catch(e){}
+        applyRate(festAudio);   // greift ohne Unterbrechung ins laufende Audio
+        renderSpeed();
+      }
+      function renderSpeed(){
+        if(!festSpeedEl) return;
+        festSpeedEl.innerHTML = "";
+        SPEEDS.forEach(function(v){
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "speed-btn" + (playSpeed === v ? " active" : "");
+          b.textContent = speedLabel(v);
+          b.setAttribute("aria-label", "Geschwindigkeit " + speedLabel(v));
+          b.setAttribute("aria-pressed", playSpeed === v ? "true" : "false");
+          b.addEventListener("click", function(){ if(playSpeed !== v) setSpeed(v); });
+          festSpeedEl.appendChild(b);
+        });
+      }
+      renderSpeed();
 
       var hasTTS = (typeof window.speechSynthesis !== "undefined") && (typeof window.SpeechSynthesisUtterance !== "undefined");
       var festActive = false, festSeq = [], festIdx = 0;
@@ -2569,7 +2642,11 @@
         festCard.appendChild(inner); // frisch eingefügter Knoten -> Fade-in-Animation läuft automatisch
       }
 
-      function festFallbackMs(text){ return Math.min(20000, Math.max(4500, (text || "").length * 55)); }
+      // Notbremse, wenn es weder MP3 noch Sprachausgabe gibt: geschaetzte Lesedauer.
+      // Skaliert mit dem gewaehlten Tempo, damit die Karten nicht stehen bleiben.
+      function festFallbackMs(text){
+        return Math.min(20000, Math.max(4500, (text || "").length * 55)) / (playSpeed || 1);
+      }
 
       function festAdvance(){
         if(!festActive) return;
@@ -2646,6 +2723,7 @@
           festAudio.onerror = function(){ if(festActive) festFallbackToSpeech(it); };
           try{
             festAudio.src = clip.url;
+            applyRate(festAudio);   // nach jedem Quellenwechsel neu setzen
             var pr = festAudio.play();
             if(pr && pr.catch){ pr.catch(function(){ if(festActive) festFallbackToSpeech(it); }); }
           }catch(e){ festFallbackToSpeech(it); }
@@ -2664,7 +2742,11 @@
           if(!festVoiceResolved) resolveBestVoice();
           if(festVoice){ u.voice = festVoice; if(festVoice.lang){ u.lang = festVoice.lang; } }
         }
-        u.rate = 0.95;   // etwas ruhiger -> wirkt natürlicher
+        // Die Systemstimme folgt derselben Auswahl, damit das Tempo auch dort
+        // stimmt, wo (noch) keine MP3 vorliegt. Anders als beim Audio-Element
+        // laesst sich das hier nicht mitten im Satz aendern – es greift ab der
+        // naechsten Karte. Die 0.95 sind der bisherige, ruhigere Grundton.
+        u.rate = Math.max(0.1, Math.min(10, 0.95 * playSpeed));
         u.pitch = 1.0;
         u.onend = function(){ if(festActive && festUtter === u){ festAdvance(); } };
         u.onerror = function(){
@@ -2705,6 +2787,7 @@
       }
       function festUnlockAudio(){
         if(!festAudio){ festAudio = new Audio(); festAudio.setAttribute("playsinline", ""); festAudio.preload = "auto"; }
+        applyRate(festAudio);
         try{
           if(!festAudioUnlockUrl){ festAudioUnlockUrl = festMakeSilentUrl(); }
           if(festAudioUnlockUrl){ festAudio.src = festAudioUnlockUrl; var pr = festAudio.play(); if(pr && pr.catch){ pr.catch(function(){}); } }
