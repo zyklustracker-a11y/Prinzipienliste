@@ -580,6 +580,44 @@
     }
     .festigen-inner.is-wert .festigen-title{ color:var(--sage); }
 
+    /* ===== Erinnerungen (Push) ===== */
+    .remind-state{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.03em;
+      margin:0 0 14px; color:var(--paper-text-dim); line-height:1.6;
+    }
+    .remind-state.on{ color:var(--sage); }
+    .remind-state.off{ color:var(--paper-text-dim); }
+    .remind-state.warn{ color:var(--brass); }
+    .remind-state.err{ color:var(--danger); }
+
+    .remind-time-row{ align-items:center; }
+    .remind-time-row label{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--paper-text-dim);
+      text-transform:uppercase; letter-spacing:.06em; flex-shrink:0;
+    }
+    input.remind-time{
+      flex:0 0 auto; width:auto; min-width:120px;
+      font-family:'IBM Plex Mono',monospace; font-size:16px;
+    }
+    /* Das Uhr-Symbol von Safari/Chrome an die dunkle Oberfläche angleichen */
+    input.remind-time::-webkit-calendar-picker-indicator{ filter:invert(.7) sepia(.4) saturate(3) hue-rotate(350deg); cursor:pointer; }
+
+    .remind-days-label{
+      font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--paper-text-dim);
+      text-transform:uppercase; letter-spacing:.06em; margin:14px 0 8px;
+    }
+    .remind-days{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+    .day-btn{
+      background:none; border:1px solid var(--hairline); color:var(--paper-text-dim);
+      font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+      min-width:44px; min-height:40px; padding:0 6px; border-radius:999px; cursor:pointer;
+      transition:background .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .day-btn:hover{ border-color:var(--sage-dim); color:var(--paper-text); }
+    .day-btn.on{ background:var(--sage); border-color:var(--sage); color:#1b1d21; }
+    #remind-section.disabled{ opacity:.55; }
+    #remind-endpoint{ word-break:break-all; }
+
     /* ── Splash-/Ladescreen ──────────────────────────────────── */
     html.splash-active, html.splash-active body{ overflow:hidden; }
     #app-splash{
@@ -802,6 +840,36 @@
         <ul class="fail-list" id="bulk-fails" style="display:none;"></ul>
       </div>
 
+      <div class="settings-section" id="remind-section">
+        <h3>Erinnerungen</h3>
+        <p class="settings-desc">Eine Benachrichtigung am Abend, die dich an deine Prinzipien erinnert. Auf dem iPhone geht das nur, wenn die App vom Homebildschirm gestartet wurde.</p>
+
+        <p class="remind-state" id="remind-state">wird geprüft …</p>
+
+        <div class="settings-row">
+          <button type="button" class="filter-toggle" id="remind-toggle" aria-pressed="false">
+            <span class="box" aria-hidden="true"></span><span>Abenderinnerung aktivieren</span>
+          </button>
+        </div>
+
+        <div id="remind-details" style="display:none;">
+          <div class="settings-row remind-time-row">
+            <label for="remind-time">Uhrzeit</label>
+            <input type="time" id="remind-time" class="cat-input remind-time" value="20:00" aria-label="Uhrzeit der Erinnerung">
+          </div>
+
+          <div class="remind-days-label">Wochentage</div>
+          <div class="remind-days" id="remind-days" role="group" aria-label="Wochentage"></div>
+
+          <div class="settings-row">
+            <button type="button" class="settings-btn secondary" id="remind-test">Test-Benachrichtigung senden</button>
+          </div>
+        </div>
+
+        <p class="settings-status" id="remind-status"></p>
+        <p class="settings-hint" id="remind-endpoint" style="display:none;"></p>
+      </div>
+
       <p class="settings-hint" id="settings-config-hint"></p>
     </div>
   </div>
@@ -915,6 +983,29 @@
       // base64-Länge und lassen ~48 KB Reserve für die übrigen Felder.
       var AUDIO_MAX_B64 = 1000000;
       /* ▲▲▲  ENDE ELEVENLABS-ZUGANG  ▲▲▲ */
+
+      /* ============================================================
+         ▼▼▼  PUSH-SERVER – HIER EINTRAGEN  ▼▼▼
+         ------------------------------------------------------------
+         Diese drei Werte gibt push-server/setup.sh am Ende aus.
+         Solange sie leer sind, blendet sich der Bereich
+         "Einstellungen > Erinnerungen" einfach aus – die App
+         funktioniert davon unabhaengig ganz normal weiter.
+
+         1) PUSH_SERVER_URL     : Adresse des Cloudflare Workers,
+                                  z. B. "https://prinzipien-push.<name>.workers.dev"
+         2) PUSH_VAPID_PUBLIC   : oeffentlicher VAPID-Schluessel (87 Zeichen).
+                                  Der ist oeffentlich, er darf hier stehen.
+         3) PUSH_SHARED_SECRET  : gemeinsames Geheimnis fuer den Header.
+                                  ACHTUNG: Dieses Repository ist oeffentlich,
+                                  der Wert ist also mitlesbar. Er haelt
+                                  zufaellige Zugriffe ab, ist aber kein
+                                  echter Zugangsschutz.
+         ============================================================ */
+      var PUSH_SERVER_URL    = "";
+      var PUSH_VAPID_PUBLIC  = "";
+      var PUSH_SHARED_SECRET = "";
+      /* ▲▲▲  ENDE PUSH-SERVER  ▲▲▲ */
 
       /* ============================================================
          FIREBASE-KONFIGURATION (deine eigene App)
@@ -2314,6 +2405,9 @@
         document.body.classList.add("festigen-active");
         try{ history.pushState({ settings: true }, ""); setPushedState = true; }catch(e){ setPushedState = false; }
         updateConfigHint();
+        // Zustand der Erinnerung frisch pruefen – Berechtigung oder Abo
+        // koennen sich ausserhalb der App geaendert haben.
+        if(typeof refreshRemindState === "function") refreshRemindState();
         if(voiceSelect && voiceSelect.value !== getVoiceId()){
           var has = Array.prototype.some.call(voiceSelect.options, function(o){ return o.value === getVoiceId(); });
           if(has) voiceSelect.value = getVoiceId();
@@ -2419,6 +2513,358 @@
       }
       if(bulkStart){ bulkStart.addEventListener("click", startBulk); }
       if(bulkCancelBtn){ bulkCancelBtn.addEventListener("click", function(){ bulkRunning = false; }); }
+
+      /* ============================================================
+         ERINNERUNGEN (Web Push)
+
+         Auf iOS kann eine PWA keine Benachrichtigung selbst zeitgesteuert
+         ausloesen – sobald die App zu ist, laeuft kein Code mehr. Der
+         Zeitplan liegt deshalb im Cloudflare Worker (push-server/), hier
+         wird nur abonniert und eingestellt.
+
+         Zwei Dinge sind auf dem iPhone zwingend:
+           1. Die App muss vom Homebildschirm laufen (Standalone). Aus
+              Safari heraus gibt es keine Benachrichtigungen.
+           2. Notification.requestPermission() darf ausschliesslich in
+              einem Klick-Handler stehen. Beim Laden aufgerufen wird die
+              Anfrage kommentarlos abgewiesen.
+         ============================================================ */
+      var remindSection = document.getElementById("remind-section");
+      var remindState   = document.getElementById("remind-state");
+      var remindToggle  = document.getElementById("remind-toggle");
+      var remindDetails = document.getElementById("remind-details");
+      var remindTime    = document.getElementById("remind-time");
+      var remindDaysEl  = document.getElementById("remind-days");
+      var remindTestBtn = document.getElementById("remind-test");
+      var remindStatus  = document.getElementById("remind-status");
+      var remindEndpoint= document.getElementById("remind-endpoint");
+
+      var DAY_NAMES = ["So","Mo","Di","Mi","Do","Fr","Sa"];   // Index = getDay(), 0 = Sonntag
+      var REMIND_KEY = "prinzipien-remind";
+
+      var remind = { enabled:false, hour:20, minute:0, days:[0,1,2,3,4,5,6] };
+      try{
+        var rSaved = JSON.parse(localStorage.getItem(REMIND_KEY) || "null");
+        if(rSaved && typeof rSaved === "object"){
+          remind.enabled = !!rSaved.enabled;
+          if(Number.isInteger(rSaved.hour) && rSaved.hour >= 0 && rSaved.hour <= 23) remind.hour = rSaved.hour;
+          if(Number.isInteger(rSaved.minute) && rSaved.minute >= 0 && rSaved.minute <= 59) remind.minute = rSaved.minute;
+          if(Array.isArray(rSaved.days) && rSaved.days.length) remind.days = rSaved.days.filter(function(d){ return d >= 0 && d <= 6; });
+        }
+      }catch(e){}
+      function saveRemind(){ try{ localStorage.setItem(REMIND_KEY, JSON.stringify(remind)); }catch(e){} }
+
+      var pushConfigured = !!(PUSH_SERVER_URL && PUSH_VAPID_PUBLIC);
+      var pushSupported = ("serviceWorker" in navigator) && ("PushManager" in window) && ("Notification" in window);
+      // navigator.standalone ist die iOS-Kennung; display-mode deckt den Rest ab.
+      var isStandalone = (window.navigator.standalone === true) ||
+                         (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      var swReg = null;
+
+      function timeLabel(){
+        return (remind.hour < 10 ? "0" : "") + remind.hour + ":" + (remind.minute < 10 ? "0" : "") + remind.minute;
+      }
+      function daysLabel(){
+        if(remind.days.length === 7) return "täglich";
+        if(remind.days.length === 5 && [1,2,3,4,5].every(function(d){ return remind.days.indexOf(d) !== -1; })) return "Mo–Fr";
+        return remind.days.slice().sort().map(function(d){ return DAY_NAMES[d]; }).join(", ");
+      }
+      function remindSay(msg, cls){
+        if(!remindStatus) return;
+        remindStatus.className = "settings-status" + (cls ? (" " + cls) : "");
+        remindStatus.textContent = msg || "";
+      }
+
+      function b64urlToBytes(s){
+        var b64 = s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4);
+        var bin = atob(b64), out = new Uint8Array(bin.length);
+        for(var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+
+      // Einstellungen zusaetzlich in IndexedDB ablegen: Der Service Worker kommt
+      // nicht an localStorage, braucht die Werte aber fuer pushsubscriptionchange.
+      function writeSwConfig(){
+        return new Promise(function(resolve){
+          try{
+            var req = indexedDB.open("prinzipien-push", 1);
+            req.onupgradeneeded = function(){
+              var db = req.result;
+              if(!db.objectStoreNames.contains("config")) db.createObjectStore("config");
+            };
+            req.onsuccess = function(){
+              try{
+                var db = req.result;
+                var tx = db.transaction("config", "readwrite");
+                tx.objectStore("config").put({
+                  serverUrl: PUSH_SERVER_URL,
+                  vapidPublicKey: PUSH_VAPID_PUBLIC,
+                  sharedSecret: PUSH_SHARED_SECRET,
+                  hour: remind.hour, minute: remind.minute, days: remind.days,
+                  timeZone: currentTimeZone()
+                }, "settings");
+                tx.oncomplete = function(){ resolve(); };
+                tx.onerror = function(){ resolve(); };
+              }catch(e){ resolve(); }
+            };
+            req.onerror = function(){ resolve(); };
+          }catch(e){ resolve(); }
+        });
+      }
+
+      function currentTimeZone(){
+        try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; }catch(e){ return "UTC"; }
+      }
+
+      function pushPost(path, body){
+        return fetch(PUSH_SERVER_URL.replace(/\/+$/, "") + path, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-App-Secret": PUSH_SHARED_SECRET },
+          body: JSON.stringify(body)
+        }).then(function(res){
+          return res.json().catch(function(){ return {}; }).then(function(data){
+            if(!res.ok){
+              var e = new Error(data && data.error ? data.error : ("HTTP " + res.status));
+              e.status = res.status; throw e;
+            }
+            return data;
+          });
+        });
+      }
+      function pushErr(e){
+        var m = (e && e.message) ? String(e.message) : String(e);
+        if(e && e.status === 401) return "Der Push-Server weist die App ab (401) – stimmt PUSH_SHARED_SECRET?";
+        if(/Failed to fetch|Load failed|NetworkError/i.test(m)) return "Push-Server nicht erreichbar. Adresse und Internetverbindung prüfen.";
+        return "Fehlgeschlagen: " + m;
+      }
+
+      /* ---------- Service Worker registrieren ---------- */
+      function ensureSw(){
+        if(swReg) return Promise.resolve(swReg);
+        if(!pushSupported) return Promise.reject(new Error("Push wird hier nicht unterstützt"));
+        return navigator.serviceWorker.register("sw.js")
+          .then(function(reg){ return navigator.serviceWorker.ready.then(function(){ swReg = reg; return reg; }); });
+      }
+
+      /* ---------- Anzeige ---------- */
+      function renderRemindDays(){
+        if(!remindDaysEl) return;
+        remindDaysEl.innerHTML = "";
+        // Woche von Montag bis Sonntag anzeigen, intern bleibt 0 = Sonntag.
+        [1,2,3,4,5,6,0].forEach(function(d){
+          var on = remind.days.indexOf(d) !== -1;
+          var b = document.createElement("button");
+          b.type = "button"; b.className = "day-btn" + (on ? " on" : "");
+          b.textContent = DAY_NAMES[d];
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+          b.setAttribute("aria-label", DAY_NAMES[d]);
+          b.addEventListener("click", function(){
+            var i = remind.days.indexOf(d);
+            if(i === -1) remind.days.push(d); else remind.days.splice(i, 1);
+            if(!remind.days.length){ remind.days.push(d); showToast("Mindestens ein Tag muss aktiv bleiben."); return; }
+            saveRemind(); renderRemind();
+            if(remind.enabled) resubscribe("Tage gespeichert.");
+          });
+          remindDaysEl.appendChild(b);
+        });
+      }
+
+      function renderRemind(){
+        if(!remindSection) return;
+
+        // Ohne hinterlegten Server hat der Bereich keinen Sinn – ausblenden.
+        if(!pushConfigured){ remindSection.style.display = "none"; return; }
+        remindSection.style.display = "";
+
+        if(remindTime) remindTime.value = timeLabel();
+        renderRemindDays();
+
+        var blocked = null;
+        if(!pushSupported){
+          blocked = { cls:"err", text:"Dieser Browser unterstützt keine Push-Benachrichtigungen. Auf dem iPhone brauchst du iOS 16.4 oder neuer." };
+        } else if(isIOS && !isStandalone){
+          blocked = { cls:"warn", text:"Die App läuft gerade in Safari. Benachrichtigungen gehen auf dem iPhone nur vom Homebildschirm aus: unten auf „Teilen“ tippen, „Zum Home-Bildschirm“ wählen und die App von dort starten." };
+        } else if(Notification.permission === "denied"){
+          blocked = { cls:"err", text:"Benachrichtigungen sind für diese App gesperrt. Wieder erlauben: iPhone-Einstellungen → Mitteilungen → „Prinzipien“ → „Mitteilungen erlauben“ einschalten." };
+        }
+
+        if(remindToggle){
+          remindToggle.disabled = !!blocked;
+          remindToggle.classList.toggle("on", remind.enabled && !blocked);
+          remindToggle.setAttribute("aria-pressed", (remind.enabled && !blocked) ? "true" : "false");
+          var box = remindToggle.querySelector(".box");
+          if(box) box.textContent = (remind.enabled && !blocked) ? "✓" : "";
+        }
+        remindSection.classList.toggle("disabled", !!blocked);
+        if(remindDetails) remindDetails.style.display = (remind.enabled && !blocked) ? "" : "none";
+
+        if(!remindState) return;
+        if(blocked){
+          remindState.className = "remind-state " + blocked.cls;
+          remindState.textContent = blocked.text;
+        } else if(remind.enabled){
+          remindState.className = "remind-state on";
+          remindState.textContent = "Erinnerung aktiv für " + timeLabel() + " Uhr (" + daysLabel() + ", Zeitzone " + currentTimeZone() + ").";
+        } else {
+          remindState.className = "remind-state off";
+          remindState.textContent = "Erinnerung inaktiv.";
+        }
+      }
+
+      /* ---------- Abonnieren / Abmelden ---------- */
+      function getSubscription(){
+        return ensureSw().then(function(reg){ return reg.pushManager.getSubscription(); });
+      }
+
+      function subscribeNow(){
+        return ensureSw().then(function(reg){
+          return reg.pushManager.getSubscription().then(function(existing){
+            if(existing) return existing;
+            return reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: b64urlToBytes(PUSH_VAPID_PUBLIC)
+            });
+          });
+        }).then(function(sub){
+          return writeSwConfig().then(function(){
+            return pushPost("/subscribe", {
+              subscription: sub.toJSON(),
+              hour: remind.hour, minute: remind.minute,
+              days: remind.days, timeZone: currentTimeZone()
+            });
+          }).then(function(){ return sub; });
+        });
+      }
+
+      // Uhrzeit oder Tage geaendert -> Eintrag erneut schicken.
+      function resubscribe(okMsg){
+        remindSay("Wird gespeichert …");
+        subscribeNow().then(function(){
+          remindSay(okMsg || "Gespeichert.", "ok");
+          renderRemind();
+        }).catch(function(e){ remindSay(pushErr(e), "err"); });
+      }
+
+      if(remindToggle){
+        remindToggle.addEventListener("click", function(){
+          if(remind.enabled){
+            // Ausschalten: Eintrag beim Server loeschen, Abo aufheben.
+            remindSay("Wird deaktiviert …");
+            getSubscription().then(function(sub){
+              if(!sub) return null;
+              return pushPost("/unsubscribe", { subscription: { endpoint: sub.endpoint } })
+                .catch(function(){ /* auch bei Serverfehler lokal abmelden */ })
+                .then(function(){ return sub.unsubscribe().catch(function(){}); });
+            }).then(function(){
+              remind.enabled = false; saveRemind(); renderRemind();
+              if(remindEndpoint) remindEndpoint.style.display = "none";
+              remindSay("Erinnerung deaktiviert.");
+            }).catch(function(e){
+              remind.enabled = false; saveRemind(); renderRemind();
+              remindSay(pushErr(e), "err");
+            });
+            return;
+          }
+
+          // Einschalten. requestPermission() steht bewusst DIREKT hier im
+          // Klick-Handler – iOS verlangt eine Nutzergeste und weist die
+          // Anfrage sonst kommentarlos ab.
+          remindSay("Berechtigung wird angefragt …");
+          Promise.resolve(Notification.requestPermission()).then(function(perm){
+            if(perm !== "granted"){
+              renderRemind();
+              remindSay(perm === "denied"
+                ? "Benachrichtigungen wurden abgelehnt. Wieder erlauben: iPhone-Einstellungen → Mitteilungen → „Prinzipien“."
+                : "Berechtigung nicht erteilt.", "err");
+              return;
+            }
+            remindSay("Wird eingerichtet …");
+            return subscribeNow().then(function(sub){
+              remind.enabled = true; saveRemind(); renderRemind();
+              remindSay("Erinnerung eingerichtet.", "ok");
+              if(remindEndpoint && sub){
+                remindEndpoint.style.display = "";
+                remindEndpoint.textContent = "Dein Push-Endpunkt (für Textänderungen ohne Deploy):\n" + sub.endpoint;
+              }
+            });
+          }).catch(function(e){ renderRemind(); remindSay(pushErr(e), "err"); });
+        });
+      }
+
+      if(remindTime){
+        remindTime.addEventListener("change", function(){
+          var m = /^(\d{1,2}):(\d{2})$/.exec(remindTime.value || "");
+          if(!m){ remindTime.value = timeLabel(); return; }
+          var h = parseInt(m[1], 10), mi = parseInt(m[2], 10);
+          if(h < 0 || h > 23 || mi < 0 || mi > 59){ remindTime.value = timeLabel(); return; }
+          remind.hour = h; remind.minute = mi; saveRemind(); renderRemind();
+          if(remind.enabled) resubscribe("Uhrzeit auf " + timeLabel() + " Uhr gespeichert.");
+        });
+      }
+
+      if(remindTestBtn){
+        remindTestBtn.addEventListener("click", function(){
+          remindTestBtn.disabled = true;
+          remindSay("Test wird geschickt …");
+          getSubscription().then(function(sub){
+            if(!sub) throw new Error("Kein Abo vorhanden – Erinnerung zuerst aktivieren.");
+            return pushPost("/test", { subscription: sub.toJSON() });
+          }).then(function(res){
+            if(res && res.ok){
+              remindSay("Test verschickt (Status " + res.status + "). Die Benachrichtigung kommt meist in wenigen Sekunden."
+                + (res.withPayload === false ? " Hinweis: ohne Nutzlast verschickt, es erscheint der Standardtext." : ""), "ok");
+            } else {
+              remindSay("Der Push-Dienst hat abgelehnt (Status " + (res && res.status) + ")."
+                + ((res && res.detail) ? " " + res.detail : ""), "err");
+            }
+          }).catch(function(e){ remindSay(pushErr(e), "err"); })
+            .then(function(){ remindTestBtn.disabled = false; });
+        });
+      }
+
+      // Beim Oeffnen der Einstellungen den tatsaechlichen Zustand nachziehen:
+      // Das Abo kann seit dem letzten Mal weggefallen sein (Berechtigung
+      // entzogen, App neu installiert), dann darf hier nicht "aktiv" stehen.
+      function refreshRemindState(){
+        if(!pushConfigured || !pushSupported) { renderRemind(); return; }
+        if(!remind.enabled || Notification.permission !== "granted"){
+          if(remind.enabled && Notification.permission !== "granted"){ remind.enabled = false; saveRemind(); }
+          renderRemind(); return;
+        }
+        getSubscription().then(function(sub){
+          if(!sub && remind.enabled){ remind.enabled = false; saveRemind(); }
+          if(sub && remindEndpoint){
+            remindEndpoint.style.display = "";
+            remindEndpoint.textContent = "Dein Push-Endpunkt (für Textänderungen ohne Deploy):\n" + sub.endpoint;
+          }
+          renderRemind();
+        }).catch(function(){ renderRemind(); });
+      }
+
+      // Service Worker frueh registrieren (ohne Berechtigungsanfrage!), damit
+      // push- und notificationclick-Ereignisse ankommen, sobald abonniert wurde.
+      if(pushConfigured && pushSupported){
+        ensureSw().then(function(){
+          writeSwConfig();
+          refreshRemindState();
+        }).catch(function(e){ console.error(e); renderRemind(); });
+      } else {
+        renderRemind();
+      }
+
+      // Der Service Worker meldet sich, wenn eine Benachrichtigung angetippt
+      // wurde und die App schon offen war -> zur Prinzipien-Ansicht springen.
+      if("serviceWorker" in navigator){
+        navigator.serviceWorker.addEventListener("message", function(e){
+          if(e.data && e.data.type === "erinnerung-geoeffnet"){
+            if(setScreen && setScreen.classList.contains("active")) setTeardown();
+            if(festActive) festTeardown();
+            setView("prinzipien");
+          }
+        });
+      }
 
       /* ============================================================
          FESTIGEN – Prinzipien der Reihe nach anzeigen.

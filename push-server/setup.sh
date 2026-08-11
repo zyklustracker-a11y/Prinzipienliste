@@ -89,15 +89,14 @@ WORKER_URL="$(printf '%s' "$DEPLOY_OUT" | grep -oE 'https://[a-z0-9.-]+\.workers
 cat <<EOF
 
 ────────────────────────────────────────────────────────────────────
-  FERTIG. Diese drei Werte in index.html eintragen
-  (Abschnitt "PUSH-SERVER" ganz oben im grossen <script>):
+  FERTIG. Diese drei Zeilen in index.html ersetzen
+  (Abschnitt "PUSH-SERVER – HIER EINTRAGEN", ganz oben im grossen
+  <script>). Einfach 1:1 uebernehmen:
 ────────────────────────────────────────────────────────────────────
 
-  PUSH_SERVER_URL = "${WORKER_URL:-<siehe Ausgabe oben>}";
-
-  VAPID_PUBLIC_KEY = "$VAPID_PUBLIC";
-
-  PUSH_SHARED_SECRET = "$SHARED";
+      var PUSH_SERVER_URL    = "${WORKER_URL:-<siehe Ausgabe oben>}";
+      var PUSH_VAPID_PUBLIC  = "$VAPID_PUBLIC";
+      var PUSH_SHARED_SECRET = "$SHARED";
 
 ────────────────────────────────────────────────────────────────────
   Der private VAPID-Schluessel liegt ausschliesslich als Worker-Secret
