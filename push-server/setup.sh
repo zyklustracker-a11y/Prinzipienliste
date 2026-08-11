@@ -22,26 +22,39 @@ die() { printf '\n\033[31mFehler: %s\033[0m\n\n' "$*" >&2; exit 1; }
 
 command -v node >/dev/null || die "Node ist nicht installiert."
 
-if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] && [ ! -f "$HOME/.wrangler/config/default.toml" ]; then
+WRANGLER="npx --yes wrangler@latest"
+
+# Zugang pruefen. Wrangler selbst fragen statt eine Konfigurationsdatei zu
+# suchen: der Ablageort unterscheidet sich je nach System (auf macOS liegt sie
+# unter ~/Library/Preferences/.wrangler/, nicht unter ~/.wrangler/).
+say "0/5  Cloudflare-Zugang pruefen"
+# Achtung: `wrangler whoami` endet auch ohne Zugang mit Exit-Code 0. Der
+# Exit-Code taugt also nicht als Pruefung -- es zaehlt die Ausgabe.
+if [ -n "${CLOUDFLARE_API_TOKEN:-}" ]; then
+  echo "   -> CLOUDFLARE_API_TOKEN ist gesetzt"
+elif ! $WRANGLER whoami 2>&1 | grep -qi "not authenticated"; then
+  echo "   -> angemeldet ueber wrangler login"
+else
   cat >&2 <<'EOF'
 
-Kein Cloudflare-Zugang gefunden. Zwei Moeglichkeiten:
+Kein Cloudflare-Zugang gefunden. Der einfachere von zwei Wegen:
 
-  a) Token setzen (Dashboard -> My Profile -> API Tokens ->
-     Vorlage "Edit Cloudflare Workers"):
-
-       export CLOUDFLARE_API_TOKEN="dein-token"
-       export CLOUDFLARE_ACCOUNT_ID="deine-account-id"
-
-  b) Oder interaktiv anmelden:
+  a) Interaktiv anmelden (oeffnet den Browser):
 
        npx wrangler login
+
+  b) Oder mit Token, falls kein Browser zur Hand ist
+     (Dashboard -> My Profile -> API Tokens ->
+      Vorlage "Edit Cloudflare Workers"):
+
+       export CLOUDFLARE_API_TOKEN=dein-token
+       export CLOUDFLARE_ACCOUNT_ID=deine-account-id
+
+Danach setup.sh erneut starten.
 
 EOF
   die "Zugang fehlt."
 fi
-
-WRANGLER="npx --yes wrangler@latest"
 
 # ── 1. KV-Namespace ────────────────────────────────────────────────────
 say "1/5  KV-Namespace fuer die Abos anlegen"
